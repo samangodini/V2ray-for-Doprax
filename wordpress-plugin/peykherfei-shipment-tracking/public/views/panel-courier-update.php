@@ -5,7 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 /** Expects $shipment in scope. */
 ?>
 <div class="pkst-front pkst-panel-courier-update">
-	<p><a href="<?php echo esc_url( remove_query_arg( array( 'pkst_action', 'shipment_id' ) ) ); ?>">&rarr; <?php esc_html_e( 'بازگشت به لیست مرسولات', 'peykherfei-shipment-tracking' ); ?></a></p>
+	<?php include __DIR__ . '/partial-header.php'; ?>
+
+	<p class="pkst-back-link"><a href="<?php echo esc_url( remove_query_arg( array( 'pkst_action', 'shipment_id' ) ) ); ?>">&rarr; <?php esc_html_e( 'بازگشت به لیست مرسولات', 'peykherfei-shipment-tracking' ); ?></a></p>
 
 	<h3 dir="ltr"><?php echo esc_html( $shipment['tracking_code'] ); ?></h3>
 	<p><?php echo esc_html( $shipment['recipient_name'] ); ?> — <span dir="ltr"><?php echo esc_html( $shipment['recipient_phone'] ); ?></span></p>

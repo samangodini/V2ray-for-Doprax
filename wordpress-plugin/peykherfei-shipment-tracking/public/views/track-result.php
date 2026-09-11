@@ -6,12 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 <div class="pkst-shipment-card pkst-track-result">
 	<div class="pkst-track-result-head">
-		<div>
-			<strong dir="ltr"><?php echo esc_html( $shipment['tracking_code'] ); ?></strong>
-			<div class="pkst-muted"><?php echo esc_html( $shipment['destination'] ); ?></div>
-		</div>
+		<strong dir="ltr"><?php echo esc_html( $shipment['tracking_code'] ); ?></strong>
 		<span class="pkst-badge <?php echo esc_attr( PKST_Status::badge_class( $shipment['status'] ) ); ?>"><?php echo esc_html( PKST_Status::label( $shipment['status'] ) ); ?></span>
 	</div>
+	<div class="pkst-muted"><?php echo esc_html( $shipment['destination'] ); ?></div>
 
 	<ul class="pkst-timeline">
 		<?php foreach ( $status_log as $entry ) : ?>

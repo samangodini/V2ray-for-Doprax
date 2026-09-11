@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /** Expects $code, $shipment, $status_log, $not_found in scope. */
 ?>
 <div class="pkst-front pkst-track-form">
+	<?php include __DIR__ . '/partial-header.php'; ?>
+
 	<form method="get" action="<?php echo esc_url( get_permalink() ); ?>" class="pkst-inline-form">
 		<input type="text" name="code" dir="ltr" placeholder="<?php esc_attr_e( 'کد رهگیری مرسوله را وارد کنید', 'peykherfei-shipment-tracking' ); ?>" value="<?php echo esc_attr( $code ); ?>" required />
 		<button type="submit" class="pkst-btn pkst-btn-primary"><?php esc_html_e( 'رهگیری مرسوله', 'peykherfei-shipment-tracking' ); ?></button>

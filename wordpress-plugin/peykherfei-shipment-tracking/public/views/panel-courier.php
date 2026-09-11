@@ -23,6 +23,8 @@ $card = function ( $s, $with_action ) {
 };
 ?>
 <div class="pkst-front pkst-panel-courier">
+	<?php include __DIR__ . '/partial-header.php'; ?>
+
 	<div class="pkst-front-header">
 		<span><?php echo esc_html( sprintf( __( 'خوش آمدید، %s', 'peykherfei-shipment-tracking' ), wp_get_current_user()->display_name ) ); ?></span>
 		<a href="<?php echo esc_url( wp_logout_url( get_permalink() ) ); ?>"><?php esc_html_e( 'خروج', 'peykherfei-shipment-tracking' ); ?></a>

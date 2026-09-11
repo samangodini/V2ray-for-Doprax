@@ -2,10 +2,58 @@
 	'use strict';
 
 	document.addEventListener( 'DOMContentLoaded', function () {
+		initThemeToggle();
 		initStatusPodToggle();
 		initSignaturePad();
 		captureGeolocation();
 	} );
+
+	var THEME_STORAGE_KEY = 'pkst_theme';
+
+	/**
+	 * Scoped to the .pkst-front container (not <html>/<body>) so the
+	 * toggle only affects this panel, never the surrounding site theme.
+	 * Persists per-browser via localStorage; falls back to the system
+	 * light/dark preference (handled in CSS) when nothing is stored yet.
+	 */
+	function initThemeToggle() {
+		var root = document.querySelector( '.pkst-front' );
+		var toggle = document.getElementById( 'pkst-theme-toggle' );
+		if ( ! root || ! toggle ) {
+			return;
+		}
+
+		var stored = null;
+		try {
+			stored = window.localStorage.getItem( THEME_STORAGE_KEY );
+		} catch ( e ) {
+			stored = null;
+		}
+		if ( 'dark' === stored || 'light' === stored ) {
+			root.setAttribute( 'data-pkst-theme', stored );
+		}
+
+		toggle.addEventListener( 'click', function () {
+			var current = root.getAttribute( 'data-pkst-theme' );
+			var isDark;
+			if ( 'dark' === current ) {
+				isDark = true;
+			} else if ( 'light' === current ) {
+				isDark = false;
+			} else {
+				// No explicit choice yet: derive from the system preference
+				// the CSS is currently honoring.
+				isDark = !! ( window.matchMedia && window.matchMedia( '(prefers-color-scheme: dark)' ).matches );
+			}
+			var next = isDark ? 'light' : 'dark';
+			root.setAttribute( 'data-pkst-theme', next );
+			try {
+				window.localStorage.setItem( THEME_STORAGE_KEY, next );
+			} catch ( e ) {
+				/* private browsing or storage disabled: toggle still works for this page view */
+			}
+		} );
+	}
 
 	var POD_STATUSES = [ 'delivered', 'failed' ];
 

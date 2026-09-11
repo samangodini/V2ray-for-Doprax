@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /** Expects $error (bool) in scope. */
 ?>
 <div class="pkst-front pkst-login">
+	<?php include __DIR__ . '/partial-header.php'; ?>
+
 	<h3><?php esc_html_e( 'ورود به پنل کاربری', 'peykherfei-shipment-tracking' ); ?></h3>
 
 	<?php if ( $error ) : ?>
