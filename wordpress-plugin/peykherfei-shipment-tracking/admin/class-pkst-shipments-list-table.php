@@ -25,6 +25,7 @@ class PKST_Shipments_List_Table extends WP_List_Table {
 			'tracking_code'        => __( 'کد رهگیری', 'peykherfei-shipment-tracking' ),
 			'recipient'            => __( 'گیرنده', 'peykherfei-shipment-tracking' ),
 			'destination'          => __( 'مقصد', 'peykherfei-shipment-tracking' ),
+			'price'                => __( 'قیمت', 'peykherfei-shipment-tracking' ),
 			'status'               => __( 'وضعیت', 'peykherfei-shipment-tracking' ),
 			'courier'              => __( 'پیک', 'peykherfei-shipment-tracking' ),
 			'handed_to_courier_at' => __( 'تحویل به پیک', 'peykherfei-shipment-tracking' ),
@@ -37,6 +38,7 @@ class PKST_Shipments_List_Table extends WP_List_Table {
 			'created_at'           => array( 'created_at', true ),
 			'handed_to_courier_at' => array( 'handed_to_courier_at', false ),
 			'status'               => array( 'status', false ),
+			'price'                => array( 'price', false ),
 		);
 	}
 
@@ -98,6 +100,11 @@ class PKST_Shipments_List_Table extends WP_List_Table {
 		return esc_html( wp_trim_words( $item['destination'], 8 ) );
 	}
 
+	protected function column_price( $item ) {
+		$formatted = PKST_Shipment::format_price( $item['price'] ?? null );
+		return $formatted ? '<span class="pkst-price">' . esc_html( $formatted ) . '</span>' : '<span class="description">—</span>';
+	}
+
 	protected function column_status( $item ) {
 		return sprintf(
 			'<span class="pkst-badge %s">%s</span>',
@@ -115,11 +122,11 @@ class PKST_Shipments_List_Table extends WP_List_Table {
 	}
 
 	protected function column_handed_to_courier_at( $item ) {
-		return $item['handed_to_courier_at'] ? esc_html( mysql2date( 'Y/m/d H:i', $item['handed_to_courier_at'] ) ) : '—';
+		return $item['handed_to_courier_at'] ? esc_html( PKST_Jalali::format( $item['handed_to_courier_at'] ) ) : '—';
 	}
 
 	protected function column_created_at( $item ) {
-		return esc_html( mysql2date( 'Y/m/d H:i', $item['created_at'] ) );
+		return esc_html( PKST_Jalali::format( $item['created_at'] ) );
 	}
 
 	public function get_bulk_actions() {

@@ -25,8 +25,9 @@ class PKST_Activator {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		$shipments = PKST_DB::shipments_table();
+		$shipments  = PKST_DB::shipments_table();
 		$status_log = PKST_DB::status_log_table();
+		$addresses  = PKST_DB::addresses_table();
 
 		$sql = "CREATE TABLE {$shipments} (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -37,7 +38,10 @@ class PKST_Activator {
 			recipient_phone VARCHAR(32) NOT NULL,
 			origin VARCHAR(255) NULL,
 			destination TEXT NOT NULL,
+			destination_lat DECIMAL(10,7) NULL,
+			destination_lng DECIMAL(10,7) NULL,
 			description VARCHAR(255) NULL,
+			price BIGINT UNSIGNED NULL,
 			status VARCHAR(32) NOT NULL DEFAULT 'registered',
 			courier_id BIGINT UNSIGNED NULL,
 			customer_user_id BIGINT UNSIGNED NULL,
@@ -72,6 +76,19 @@ class PKST_Activator {
 			created_at DATETIME NOT NULL,
 			PRIMARY KEY  (id),
 			KEY shipment_id (shipment_id)
+		) {$charset_collate};";
+		dbDelta( $sql );
+
+		$sql = "CREATE TABLE {$addresses} (
+			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+			user_id BIGINT UNSIGNED NOT NULL,
+			label VARCHAR(100) NOT NULL,
+			address_text TEXT NOT NULL,
+			lat DECIMAL(10,7) NOT NULL,
+			lng DECIMAL(10,7) NOT NULL,
+			created_at DATETIME NOT NULL,
+			PRIMARY KEY  (id),
+			KEY user_id (user_id)
 		) {$charset_collate};";
 		dbDelta( $sql );
 	}

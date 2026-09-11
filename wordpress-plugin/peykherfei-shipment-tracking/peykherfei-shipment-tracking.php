@@ -3,7 +3,7 @@
  * Plugin Name: پنل رهگیری مرسولات پیک خرفه
  * Plugin URI: https://peykherfei.com/
  * Description: سامانه اختصاصی ثبت، رهگیری و مدیریت مرسولات به همراه پنل مدیریت (وردپرس) و پنل کاربری برای مشتریان و پیک‌ها؛ شامل تأییدیه تحویل (POD)، گزارش‌گیری و وب‌سرویس اتصال به سامانه‌های خارجی.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: peykherfei.com
  * Text Domain: peykherfei-shipment-tracking
  * Domain Path: /languages
@@ -15,14 +15,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PKST_VERSION', '1.0.0' );
-define( 'PKST_DB_VERSION', '1.0.0' );
+define( 'PKST_VERSION', '1.1.0' );
+define( 'PKST_DB_VERSION', '1.1.0' );
 define( 'PKST_PLUGIN_FILE', __FILE__ );
 define( 'PKST_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'PKST_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'PKST_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-db.php';
+require_once PKST_PLUGIN_DIR . 'includes/class-pkst-jalali.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-status.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-roles.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-activator.php';
@@ -36,6 +37,8 @@ require_once PKST_PLUGIN_DIR . 'includes/class-pkst-reports.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-user-manager.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-rest-api.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-geolocation.php';
+require_once PKST_PLUGIN_DIR . 'includes/class-pkst-map.php';
+require_once PKST_PLUGIN_DIR . 'includes/class-pkst-address.php';
 
 register_activation_hook( __FILE__, array( 'PKST_Activator', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'PKST_Deactivator', 'deactivate' ) );

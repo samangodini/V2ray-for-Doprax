@@ -25,7 +25,9 @@ class PKST_Admin {
 		add_action( 'admin_post_pkst_regenerate_api_key', array( $this, 'handle_regenerate_api_key' ) );
 		add_action( 'admin_post_pkst_create_user', array( $this, 'handle_create_user' ) );
 		add_action( 'admin_post_pkst_toggle_user_active', array( $this, 'handle_toggle_user_active' ) );
+		add_action( 'admin_post_pkst_delete_user', array( $this, 'handle_delete_user' ) );
 		add_action( 'admin_post_pkst_export_csv', array( 'PKST_Export', 'handle_csv_export' ) );
+		add_action( 'wp_ajax_pkst_get_customer_addresses', array( $this, 'ajax_get_customer_addresses' ) );
 	}
 
 	public function register_menu() {
@@ -47,12 +49,18 @@ class PKST_Admin {
 	}
 
 	public function enqueue_assets( $hook ) {
-		if ( ! isset( $_GET['page'] ) || 0 !== strpos( sanitize_text_field( wp_unslash( $_GET['page'] ) ), 'pkst-' ) ) {
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		if ( 0 !== strpos( $page, 'pkst-' ) ) {
 			return;
 		}
 
 		wp_enqueue_style( 'pkst-admin', PKST_PLUGIN_URL . 'admin/css/admin.css', array(), PKST_VERSION );
 		wp_enqueue_script( 'pkst-admin', PKST_PLUGIN_URL . 'admin/js/admin.js', array( 'jquery' ), PKST_VERSION, true );
+
+		if ( 'pkst-shipment-add' === $page ) {
+			PKST_Map::enqueue();
+		}
+
 		wp_localize_script(
 			'pkst-admin',
 			'PKST_ADMIN',
@@ -162,10 +170,13 @@ class PKST_Admin {
 			'recipient_phone'      => wp_unslash( $_POST['recipient_phone'] ?? '' ),
 			'origin'               => wp_unslash( $_POST['origin'] ?? '' ),
 			'destination'          => wp_unslash( $_POST['destination'] ?? '' ),
+			'destination_lat'      => wp_unslash( $_POST['destination_lat'] ?? '' ),
+			'destination_lng'      => wp_unslash( $_POST['destination_lng'] ?? '' ),
 			'description'          => wp_unslash( $_POST['description'] ?? '' ),
+			'price'                => wp_unslash( $_POST['price'] ?? '' ),
 			'courier_id'           => absint( $_POST['courier_id'] ?? 0 ),
 			'customer_user_id'     => absint( $_POST['customer_user_id'] ?? 0 ),
-			'handed_to_courier_at' => wp_unslash( $_POST['handed_to_courier_at'] ?? '' ),
+			'handed_to_courier_at' => PKST_Jalali::parse_select_input( 'handed_to_courier_at_j', true ),
 		);
 
 		if ( $id ) {
@@ -357,6 +368,56 @@ class PKST_Admin {
 		exit;
 	}
 
+	public function handle_delete_user() {
+		$user_id = isset( $_GET['user_id'] ) ? absint( $_GET['user_id'] ) : 0;
+		check_admin_referer( 'pkst_delete_user_' . $user_id );
+		if ( ! current_user_can( 'pkst_manage_users' ) ) {
+			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
+		}
+
+		$result = PKST_User_Manager::delete_user( $user_id );
+
+		$notice = is_wp_error( $result ) ? 'error' : 'user_deleted';
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'        => 'pkst-users',
+					'pkst_notice' => $notice,
+					'pkst_msg'    => is_wp_error( $result ) ? rawurlencode( $result->get_error_message() ) : '',
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
+	}
+
+	public function ajax_get_customer_addresses() {
+		check_ajax_referer( 'pkst_admin_nonce', 'nonce' );
+		if ( ! current_user_can( 'pkst_manage_shipments' ) ) {
+			wp_send_json_error();
+		}
+
+		$customer_id = isset( $_POST['customer_id'] ) ? absint( $_POST['customer_id'] ) : 0;
+		if ( ! $customer_id ) {
+			wp_send_json_success( array() );
+		}
+
+		$addresses = PKST_Address::list_for_user( $customer_id );
+		wp_send_json_success(
+			array_map(
+				function ( $addr ) {
+					return array(
+						'label'   => $addr['label'],
+						'address' => $addr['address_text'],
+						'lat'     => $addr['lat'],
+						'lng'     => $addr['lng'],
+					);
+				},
+				$addresses
+			)
+		);
+	}
+
 	public static function notice_from_query() {
 		if ( empty( $_GET['pkst_notice'] ) ) {
 			return;
@@ -371,6 +432,7 @@ class PKST_Admin {
 			'bulk_done'      => array( 'success', __( 'عملیات گروهی انجام شد.', 'peykherfei-shipment-tracking' ) ),
 			'status_updated' => array( 'success', __( 'وضعیت مرسوله به‌روزرسانی شد.', 'peykherfei-shipment-tracking' ) ),
 			'user_created'   => array( 'success', __( 'کاربر با موفقیت ایجاد شد.', 'peykherfei-shipment-tracking' ) ),
+			'user_deleted'   => array( 'success', __( 'کاربر حذف شد.', 'peykherfei-shipment-tracking' ) ),
 			'error'          => array( 'error', $msg ? $msg : __( 'خطایی رخ داد.', 'peykherfei-shipment-tracking' ) ),
 		);
 

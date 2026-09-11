@@ -28,7 +28,15 @@ $customer = $shipment['customer_user_id'] ? get_userdata( $shipment['customer_us
 				</h2>
 				<table class="widefat striped pkst-kv">
 					<tr><th><?php esc_html_e( 'گیرنده', 'peykherfei-shipment-tracking' ); ?></th><td><?php echo esc_html( $shipment['recipient_name'] ); ?> — <span dir="ltr"><?php echo esc_html( $shipment['recipient_phone'] ); ?></span></td></tr>
-					<tr><th><?php esc_html_e( 'مقصد', 'peykherfei-shipment-tracking' ); ?></th><td><?php echo esc_html( $shipment['destination'] ); ?></td></tr>
+					<tr><th><?php esc_html_e( 'مقصد', 'peykherfei-shipment-tracking' ); ?></th><td>
+						<?php echo esc_html( $shipment['destination'] ); ?>
+						<?php if ( ! empty( $shipment['destination_lat'] ) && ! empty( $shipment['destination_lng'] ) ) : ?>
+							— <a href="<?php echo esc_url( PKST_Geolocation::google_maps_url( $shipment['destination_lat'], $shipment['destination_lng'] ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'مشاهده روی نقشه', 'peykherfei-shipment-tracking' ); ?></a>
+						<?php endif; ?>
+					</td></tr>
+					<?php if ( PKST_Shipment::format_price( $shipment['price'] ?? null ) ) : ?>
+					<tr><th><?php esc_html_e( 'قیمت', 'peykherfei-shipment-tracking' ); ?></th><td><span class="pkst-price"><?php echo esc_html( PKST_Shipment::format_price( $shipment['price'] ?? null ) ); ?></span></td></tr>
+					<?php endif; ?>
 					<?php if ( $shipment['origin'] ) : ?>
 					<tr><th><?php esc_html_e( 'مبدأ', 'peykherfei-shipment-tracking' ); ?></th><td><?php echo esc_html( $shipment['origin'] ); ?></td></tr>
 					<?php endif; ?>
@@ -39,9 +47,9 @@ $customer = $shipment['customer_user_id'] ? get_userdata( $shipment['customer_us
 					<?php if ( $customer ) : ?>
 					<tr><th><?php esc_html_e( 'حساب مشتری', 'peykherfei-shipment-tracking' ); ?></th><td><?php echo esc_html( $customer->display_name ); ?></td></tr>
 					<?php endif; ?>
-					<tr><th><?php esc_html_e( 'تحویل به پیک', 'peykherfei-shipment-tracking' ); ?></th><td><?php echo $shipment['handed_to_courier_at'] ? esc_html( mysql2date( 'Y/m/d H:i', $shipment['handed_to_courier_at'] ) ) : '—'; ?></td></tr>
+					<tr><th><?php esc_html_e( 'تحویل به پیک', 'peykherfei-shipment-tracking' ); ?></th><td><?php echo $shipment['handed_to_courier_at'] ? esc_html( PKST_Jalali::format( $shipment['handed_to_courier_at'] ) ) : '—'; ?></td></tr>
 					<?php if ( $shipment['delivered_at'] ) : ?>
-					<tr><th><?php esc_html_e( 'تاریخ تحویل نهایی', 'peykherfei-shipment-tracking' ); ?></th><td><?php echo esc_html( mysql2date( 'Y/m/d H:i', $shipment['delivered_at'] ) ); ?></td></tr>
+					<tr><th><?php esc_html_e( 'تاریخ تحویل نهایی', 'peykherfei-shipment-tracking' ); ?></th><td><?php echo esc_html( PKST_Jalali::format( $shipment['delivered_at'] ) ); ?></td></tr>
 					<?php endif; ?>
 					<?php if ( $shipment['pod_receiver_name'] ) : ?>
 					<tr><th><?php esc_html_e( 'تحویل‌گیرنده', 'peykherfei-shipment-tracking' ); ?></th><td><?php echo esc_html( $shipment['pod_receiver_name'] ); ?></td></tr>
@@ -81,7 +89,7 @@ $customer = $shipment['customer_user_id'] ? get_userdata( $shipment['customer_us
 							<div class="pkst-timeline-dot"></div>
 							<div class="pkst-timeline-body">
 								<strong><?php echo esc_html( PKST_Status::label( $entry['status'] ) ); ?></strong>
-								<span class="pkst-timeline-date"><?php echo esc_html( mysql2date( 'Y/m/d H:i', $entry['created_at'] ) ); ?></span>
+								<span class="pkst-timeline-date"><?php echo esc_html( PKST_Jalali::format( $entry['created_at'] ) ); ?></span>
 								<?php if ( $entry['note'] ) : ?><p><?php echo esc_html( $entry['note'] ); ?></p><?php endif; ?>
 								<?php if ( $entry['lat'] && $entry['lng'] ) : ?>
 									<p><a href="<?php echo esc_url( PKST_Geolocation::google_maps_url( $entry['lat'], $entry['lng'] ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'مشاهده موقعیت ثبت‌شده', 'peykherfei-shipment-tracking' ); ?></a></p>

@@ -5,7 +5,101 @@
 		initStatusPodToggle();
 		initSignaturePad();
 		initGeneratePassword();
+		initPriceFormatting();
+		initCustomerAddresses();
 	} );
+
+	/**
+	 * When a customer is linked to the shipment being created, fetch that
+	 * customer's saved addresses (PKST_Address) and show them as one-click
+	 * fill-ins for the destination map, mirroring how Snapp lets you pick
+	 * a saved place instead of typing/pinning it again each time.
+	 */
+	function initCustomerAddresses() {
+		var select = document.getElementById( 'customer_user_id' );
+		var box    = document.getElementById( 'pkst-customer-addresses' );
+		if ( ! select || ! box || typeof PKST_ADMIN === 'undefined' ) {
+			return;
+		}
+		var list = box.querySelector( '.pkst-customer-addresses-list' );
+
+		select.addEventListener( 'change', function () {
+			var customerId = select.value;
+			if ( ! customerId || '0' === customerId ) {
+				box.hidden = true;
+				return;
+			}
+
+			var body = new URLSearchParams();
+			body.append( 'action', 'pkst_get_customer_addresses' );
+			body.append( 'nonce', PKST_ADMIN.nonce );
+			body.append( 'customer_id', customerId );
+
+			fetch( PKST_ADMIN.ajaxUrl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: body.toString(),
+			} )
+				.then( function ( res ) { return res.json(); } )
+				.then( function ( data ) {
+					var addresses = data && data.success && Array.isArray( data.data ) ? data.data : [];
+					renderAddresses( addresses );
+				} )
+				.catch( function () {
+					renderAddresses( [] );
+				} );
+		} );
+
+		function renderAddresses( addresses ) {
+			list.innerHTML = '';
+			if ( ! addresses.length ) {
+				box.hidden = true;
+				return;
+			}
+			box.hidden = false;
+			addresses.forEach( function ( addr ) {
+				var chip = document.createElement( 'button' );
+				chip.type = 'button';
+				chip.className = 'button button-small pkst-address-chip';
+				chip.textContent = addr.label;
+				chip.title = addr.address;
+				chip.addEventListener( 'click', function () {
+					applyAddress( addr );
+				} );
+				list.appendChild( chip );
+			} );
+		}
+
+		function applyAddress( addr ) {
+			var destinationField = document.getElementById( 'destination' );
+			if ( destinationField ) {
+				destinationField.value = addr.address;
+			}
+			var picker = document.querySelector( '.pkst-map-picker' );
+			if ( picker && picker.pkstMap ) {
+				var lat = parseFloat( addr.lat );
+				var lng = parseFloat( addr.lng );
+				picker.pkstMap.map.setView( [ lat, lng ], 15 );
+				picker.pkstMap.setPoint( lat, lng, false );
+			}
+		}
+	}
+
+	/**
+	 * Live thousands-separator display only; the server re-parses the raw
+	 * digits on submit (PKST_Shipment::sanitize_price()), so this is purely
+	 * a readability aid, not the source of truth for the stored value.
+	 */
+	function initPriceFormatting() {
+		var fields = document.querySelectorAll( '.pkst-price-input' );
+		fields.forEach( function ( field ) {
+			field.addEventListener( 'input', function () {
+				var digits = field.value.replace( /[^0-9]/g, '' );
+				field.value = digits ? Number( digits ).toLocaleString( 'en-US' ) : '';
+			} );
+		} );
+	}
 
 	function initGeneratePassword() {
 		var btn = document.getElementById( 'pkst-generate-password' );

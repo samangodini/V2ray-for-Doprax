@@ -253,6 +253,22 @@
 	box-shadow: inset 0 3px 0 var(--pkst-gold);
 }
 
+.pkst-row-actions,
+.pkst-wrap td .pkst-btn-delete {
+	white-space: nowrap;
+}
+
+.pkst-wrap .pkst-btn-delete {
+	color: #b32d2e;
+	border-color: #e0b4b4;
+}
+
+.pkst-wrap .pkst-btn-delete:hover {
+	background: #fbeaea;
+	border-color: #b32d2e;
+	color: #8a1f20;
+}
+
 @media (max-width: 782px) {
 	.pkst-columns {
 		flex-direction: column;
@@ -261,4 +277,43 @@
 	.pkst-stat-card {
 		min-width: 130px;
 	}
+}
+
+.pkst-jalali-fields {
+	display: inline-flex;
+	gap: 6px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.pkst-jalali-fields select {
+	padding: 3px 6px;
+}
+
+.pkst-price {
+	font-weight: 700;
+	color: var(--pkst-gold-strong);
+	white-space: nowrap;
+}
+
+.pkst-price-input {
+	font-weight: 600;
+}
+
+.pkst-customer-addresses {
+	margin-top: 10px;
+	padding: 10px 12px;
+	background: var(--pkst-gold-soft);
+	border-radius: 6px;
+}
+
+.pkst-customer-addresses-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 6px;
+}
+
+.pkst-address-chip {
+	background: #fff;
 }

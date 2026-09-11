@@ -43,7 +43,11 @@ $max_daily = $daily ? max( $daily ) : 0;
 					<div class="pkst-bar" style="height: <?php echo esc_attr( $max_daily ? max( 4, round( $value / $max_daily * 100 ) ) : 4 ); ?>%;" title="<?php echo esc_attr( $value ); ?>">
 						<span><?php echo esc_html( $value ); ?></span>
 					</div>
-					<div class="pkst-bar-label"><?php echo esc_html( mysql2date( 'm/d', $date ) ); ?></div>
+					<?php
+					$d_bits = array_map( 'intval', explode( '-', $date ) );
+					list( , $jm, $jd ) = PKST_Jalali::to_jalali( $d_bits[0], $d_bits[1], $d_bits[2] );
+					?>
+					<div class="pkst-bar-label"><?php echo esc_html( PKST_Jalali::to_persian_digits( sprintf( '%02d/%02d', $jm, $jd ) ) ); ?></div>
 				</div>
 			<?php endforeach; ?>
 		</div>

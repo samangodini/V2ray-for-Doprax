@@ -81,6 +81,37 @@ class PKST_User_Manager {
 		update_user_meta( $user_id, 'pkst_active', $active ? '1' : '0' );
 	}
 
+	/**
+	 * Deletes a courier/customer account outright (deactivating only hides
+	 * it from active use, it doesn't remove it). Shipment history is kept
+	 * for the record, but its courier_id/customer_user_id are cleared
+	 * first so a deleted account doesn't leave a dangling reference that
+	 * silently resolves to nothing -- the shipment instead correctly shows
+	 * "unassigned" going forward, same as one that was never assigned.
+	 */
+	public static function delete_user( $user_id ) {
+		global $wpdb;
+
+		$user_id = absint( $user_id );
+		if ( ! $user_id || ! get_userdata( $user_id ) ) {
+			return new WP_Error( 'pkst_user_not_found', __( 'کاربر یافت نشد.', 'peykherfei-shipment-tracking' ) );
+		}
+
+		$table = PKST_DB::shipments_table();
+		$wpdb->update( $table, array( 'courier_id' => null ), array( 'courier_id' => $user_id ), array( '%d' ), array( '%d' ) );
+		$wpdb->update( $table, array( 'customer_user_id' => null ), array( 'customer_user_id' => $user_id ), array( '%d' ), array( '%d' ) );
+
+		if ( ! function_exists( 'wp_delete_user' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+
+		if ( ! wp_delete_user( $user_id ) ) {
+			return new WP_Error( 'pkst_delete_failed', __( 'حذف کاربر با خطا مواجه شد.', 'peykherfei-shipment-tracking' ) );
+		}
+
+		return true;
+	}
+
 	public static function list_by_role( $role ) {
 		return get_users(
 			array(

@@ -29,6 +29,8 @@ class PKST_Public {
 		add_action( 'template_redirect', array( $this, 'maybe_handle_login' ) );
 
 		add_action( 'admin_post_pkst_courier_update_status', array( $this, 'handle_courier_update_status' ) );
+		add_action( 'admin_post_pkst_save_address', array( $this, 'handle_save_address' ) );
+		add_action( 'admin_post_pkst_delete_address', array( $this, 'handle_delete_address' ) );
 	}
 
 	public function maybe_enqueue() {
@@ -42,6 +44,10 @@ class PKST_Public {
 
 		wp_enqueue_style( 'pkst-public', PKST_PLUGIN_URL . 'public/css/public.css', array(), PKST_VERSION );
 		wp_enqueue_script( 'pkst-public', PKST_PLUGIN_URL . 'public/js/public.js', array(), PKST_VERSION, true );
+
+		if ( is_user_logged_in() && PKST_Roles::current_user_is_customer() && isset( $_GET['pkst_action'] ) && 'addresses' === $_GET['pkst_action'] ) {
+			PKST_Map::enqueue();
+		}
 	}
 
 	/* ---------------------------------------------------------------- */
@@ -58,8 +64,7 @@ class PKST_Public {
 		}
 
 		if ( PKST_Roles::current_user_is_customer() ) {
-			$shipments = PKST_Shipment::get_for_customer( get_current_user_id() );
-			return $this->render( 'panel-customer', array( 'shipments' => $shipments ) );
+			return $this->render_customer_panel();
 		}
 
 		if ( current_user_can( 'pkst_manage_shipments' ) ) {
@@ -96,6 +101,27 @@ class PKST_Public {
 				'saved'            => ! empty( $_GET['pkst_notice'] ),
 			)
 		);
+	}
+
+	private function render_customer_panel() {
+		$user_id = get_current_user_id();
+		$action  = isset( $_GET['pkst_action'] ) ? sanitize_key( $_GET['pkst_action'] ) : 'list';
+
+		if ( 'addresses' === $action ) {
+			return $this->render(
+				'panel-addresses',
+				array(
+					'addresses'   => PKST_Address::list_for_user( $user_id ),
+					'saved'       => ! empty( $_GET['pkst_notice'] ) && 'saved' === $_GET['pkst_notice'],
+					'deleted'     => ! empty( $_GET['pkst_notice'] ) && 'deleted' === $_GET['pkst_notice'],
+					'error'       => ! empty( $_GET['pkst_notice'] ) && 'error' === $_GET['pkst_notice'],
+					'error_msg'   => isset( $_GET['pkst_msg'] ) ? sanitize_text_field( wp_unslash( $_GET['pkst_msg'] ) ) : '',
+				)
+			);
+		}
+
+		$shipments = PKST_Shipment::get_for_customer( $user_id );
+		return $this->render( 'panel-customer', array( 'shipments' => $shipments ) );
 	}
 
 	/* ---------------------------------------------------------------- */
@@ -204,6 +230,55 @@ class PKST_Public {
 
 		$redirect = wp_get_referer() ? remove_query_arg( array( 'pkst_action', 'shipment_id', 'pkst_notice' ), wp_get_referer() ) : home_url();
 		wp_safe_redirect( add_query_arg( 'pkst_notice', 'saved', $redirect ) );
+		exit;
+	}
+
+	public function handle_save_address() {
+		check_admin_referer( 'pkst_save_address' );
+		if ( ! PKST_Roles::current_user_is_customer() ) {
+			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
+		}
+
+		$redirect_base = wp_get_referer() ? remove_query_arg( 'pkst_notice', wp_get_referer() ) : home_url();
+
+		$result = PKST_Address::create(
+			get_current_user_id(),
+			array(
+				'label'        => wp_unslash( $_POST['label'] ?? '' ),
+				'address_text' => wp_unslash( $_POST['address_text'] ?? '' ),
+				'lat'          => wp_unslash( $_POST['lat'] ?? '' ),
+				'lng'          => wp_unslash( $_POST['lng'] ?? '' ),
+			)
+		);
+
+		if ( is_wp_error( $result ) ) {
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'pkst_notice' => 'error',
+						'pkst_msg'    => rawurlencode( $result->get_error_message() ),
+					),
+					$redirect_base
+				)
+			);
+			exit;
+		}
+
+		wp_safe_redirect( add_query_arg( 'pkst_notice', 'saved', $redirect_base ) );
+		exit;
+	}
+
+	public function handle_delete_address() {
+		$address_id = isset( $_GET['address_id'] ) ? absint( $_GET['address_id'] ) : 0;
+		check_admin_referer( 'pkst_delete_address_' . $address_id );
+		if ( ! PKST_Roles::current_user_is_customer() ) {
+			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
+		}
+
+		PKST_Address::delete( $address_id, get_current_user_id() );
+
+		$redirect_base = wp_get_referer() ? remove_query_arg( 'pkst_notice', wp_get_referer() ) : home_url();
+		wp_safe_redirect( add_query_arg( 'pkst_notice', 'deleted', $redirect_base ) );
 		exit;
 	}
 

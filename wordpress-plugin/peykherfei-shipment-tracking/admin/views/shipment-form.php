@@ -6,7 +6,7 @@ $is_edit = ! empty( $shipment );
 $v       = function ( $key, $default = '' ) use ( $shipment ) {
 	return $shipment[ $key ] ?? $default;
 };
-$handed_value = $is_edit && $shipment['handed_to_courier_at'] ? mysql2date( 'Y-m-d\TH:i', $shipment['handed_to_courier_at'] ) : '';
+$handed_value = $is_edit && $shipment['handed_to_courier_at'] ? $shipment['handed_to_courier_at'] : '';
 ?>
 <div class="wrap pkst-wrap" dir="rtl">
 	<h1><?php echo $is_edit ? esc_html__( 'ویرایش مرسوله', 'peykherfei-shipment-tracking' ) : esc_html__( 'افزودن مرسوله جدید', 'peykherfei-shipment-tracking' ); ?></h1>
@@ -32,7 +32,26 @@ $handed_value = $is_edit && $shipment['handed_to_courier_at'] ? mysql2date( 'Y-m
 			</tr>
 			<tr>
 				<th><label for="destination"><?php esc_html_e( 'مقصد', 'peykherfei-shipment-tracking' ); ?> *</label></th>
-				<td><textarea id="destination" name="destination" class="large-text" rows="2" required><?php echo esc_textarea( $v( 'destination' ) ); ?></textarea></td>
+				<td>
+					<textarea id="destination" name="destination" class="large-text" rows="2" required><?php echo esc_textarea( $v( 'destination' ) ); ?></textarea>
+					<?php
+					echo PKST_Map::render_picker( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- builds its own escaped markup.
+						array(
+							'lat_field'     => 'destination_lat',
+							'lng_field'     => 'destination_lng',
+							'address_field' => 'destination',
+							'lat'           => $v( 'destination_lat' ),
+							'lng'           => $v( 'destination_lng' ),
+						)
+					);
+					?>
+					<?php if ( ! empty( $customers ) ) : ?>
+						<div id="pkst-customer-addresses" class="pkst-customer-addresses" hidden>
+							<p class="description"><?php esc_html_e( 'آدرس‌های ذخیره‌شده این مشتری:', 'peykherfei-shipment-tracking' ); ?></p>
+							<div class="pkst-customer-addresses-list"></div>
+						</div>
+					<?php endif; ?>
+				</td>
 			</tr>
 			<tr>
 				<th><label for="origin"><?php esc_html_e( 'مبدأ', 'peykherfei-shipment-tracking' ); ?></label></th>
@@ -41,6 +60,12 @@ $handed_value = $is_edit && $shipment['handed_to_courier_at'] ? mysql2date( 'Y-m
 			<tr>
 				<th><label for="description"><?php esc_html_e( 'شرح مرسوله', 'peykherfei-shipment-tracking' ); ?></label></th>
 				<td><input type="text" class="regular-text" id="description" name="description" value="<?php echo esc_attr( $v( 'description' ) ); ?>" /></td>
+			</tr>
+			<tr>
+				<th><label for="price"><?php esc_html_e( 'قیمت (تومان)', 'peykherfei-shipment-tracking' ); ?></label></th>
+				<td>
+					<input type="text" inputmode="numeric" dir="ltr" class="regular-text pkst-price-input" id="price" name="price" value="<?php echo esc_attr( $v( 'price' ) ? number_format( (float) $v( 'price' ) ) : '' ); ?>" placeholder="0" />
+				</td>
 			</tr>
 			<tr>
 				<th><label for="sender_name"><?php esc_html_e( 'نام فرستنده', 'peykherfei-shipment-tracking' ); ?></label></th>
@@ -77,8 +102,11 @@ $handed_value = $is_edit && $shipment['handed_to_courier_at'] ? mysql2date( 'Y-m
 				</td>
 			</tr>
 			<tr>
-				<th><label for="handed_to_courier_at"><?php esc_html_e( 'تاریخ و ساعت تحویل به پیک', 'peykherfei-shipment-tracking' ); ?></label></th>
-				<td><input type="datetime-local" id="handed_to_courier_at" name="handed_to_courier_at" value="<?php echo esc_attr( $handed_value ); ?>" /></td>
+				<th><label><?php esc_html_e( 'تاریخ و ساعت تحویل به پیک', 'peykherfei-shipment-tracking' ); ?></label></th>
+				<td>
+					<?php echo PKST_Jalali::render_select_fields( 'handed_to_courier_at_j', $handed_value, true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- builds its own escaped markup. ?>
+					<p class="description"><?php esc_html_e( 'پیش‌فرض زمان فعلی است؛ در صورت نیاز تاریخ/ساعت واقعی تحویل به پیک را تغییر دهید.', 'peykherfei-shipment-tracking' ); ?></p>
+				</td>
 			</tr>
 		</table>
 

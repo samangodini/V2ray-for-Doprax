@@ -1,0 +1,39 @@
+.pkst-map-picker {
+	margin-top: 6px;
+}
+
+.pkst-map-tools {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.pkst-map-tools .pkst-map-search {
+	flex: 1;
+	min-width: 160px;
+}
+
+.pkst-map {
+	width: 100%;
+	border-radius: 8px;
+	border: 1px solid #dcdcde;
+	direction: ltr;
+}
+
+.pkst-map-status {
+	min-height: 18px;
+	margin: 4px 0 0;
+	color: #646970;
+	font-size: 12px;
+}
+
+@media (max-width: 480px) {
+	.pkst-map-tools {
+		flex-direction: column;
+	}
+
+	.pkst-map-tools .button {
+		width: 100%;
+	}
+}

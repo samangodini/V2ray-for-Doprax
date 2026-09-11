@@ -9,7 +9,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<div class="pkst-front-header">
 		<span><?php echo esc_html( sprintf( __( 'خوش آمدید، %s', 'peykherfei-shipment-tracking' ), wp_get_current_user()->display_name ) ); ?></span>
-		<a href="<?php echo esc_url( wp_logout_url( get_permalink() ) ); ?>"><?php esc_html_e( 'خروج', 'peykherfei-shipment-tracking' ); ?></a>
+		<span>
+			<a href="<?php echo esc_url( add_query_arg( 'pkst_action', 'addresses', get_permalink() ) ); ?>"><?php esc_html_e( 'آدرس‌های من', 'peykherfei-shipment-tracking' ); ?></a>
+			·
+			<a href="<?php echo esc_url( wp_logout_url( get_permalink() ) ); ?>"><?php esc_html_e( 'خروج', 'peykherfei-shipment-tracking' ); ?></a>
+		</span>
 	</div>
 
 	<h3><?php esc_html_e( 'مرسولات من', 'peykherfei-shipment-tracking' ); ?></h3>

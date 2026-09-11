@@ -9,7 +9,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<strong dir="ltr"><?php echo esc_html( $shipment['tracking_code'] ); ?></strong>
 		<span class="pkst-badge <?php echo esc_attr( PKST_Status::badge_class( $shipment['status'] ) ); ?>"><?php echo esc_html( PKST_Status::label( $shipment['status'] ) ); ?></span>
 	</div>
-	<div class="pkst-muted"><?php echo esc_html( $shipment['destination'] ); ?></div>
+	<div class="pkst-muted">
+		<?php echo esc_html( $shipment['destination'] ); ?>
+		<?php if ( ! empty( $shipment['destination_lat'] ) && ! empty( $shipment['destination_lng'] ) ) : ?>
+			— <a href="<?php echo esc_url( PKST_Geolocation::google_maps_url( $shipment['destination_lat'], $shipment['destination_lng'] ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'مشاهده روی نقشه', 'peykherfei-shipment-tracking' ); ?></a>
+		<?php endif; ?>
+	</div>
+	<?php if ( PKST_Shipment::format_price( $shipment['price'] ?? null ) ) : ?>
+		<div class="pkst-price"><?php echo esc_html( PKST_Shipment::format_price( $shipment['price'] ?? null ) ); ?></div>
+	<?php endif; ?>
 
 	<ul class="pkst-timeline">
 		<?php foreach ( $status_log as $entry ) : ?>
@@ -17,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="pkst-timeline-dot"></div>
 				<div class="pkst-timeline-body">
 					<strong><?php echo esc_html( PKST_Status::label( $entry['status'] ) ); ?></strong>
-					<span class="pkst-timeline-date"><?php echo esc_html( mysql2date( 'Y/m/d H:i', $entry['created_at'] ) ); ?></span>
+					<span class="pkst-timeline-date"><?php echo esc_html( PKST_Jalali::format( $entry['created_at'] ) ); ?></span>
 				</div>
 			</li>
 		<?php endforeach; ?>

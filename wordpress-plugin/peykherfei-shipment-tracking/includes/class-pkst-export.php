@@ -43,6 +43,7 @@ class PKST_Export {
 				__( 'گیرنده', 'peykherfei-shipment-tracking' ),
 				__( 'شماره تماس', 'peykherfei-shipment-tracking' ),
 				__( 'مقصد', 'peykherfei-shipment-tracking' ),
+				__( 'قیمت (تومان)', 'peykherfei-shipment-tracking' ),
 				__( 'وضعیت', 'peykherfei-shipment-tracking' ),
 				__( 'پیک', 'peykherfei-shipment-tracking' ),
 				__( 'تاریخ تحویل به پیک', 'peykherfei-shipment-tracking' ),
@@ -63,13 +64,14 @@ class PKST_Export {
 					$row['recipient_name'],
 					$row['recipient_phone'],
 					$row['destination'],
+					isset( $row['price'] ) ? $row['price'] : '',
 					isset( $labels[ $row['status'] ] ) ? $labels[ $row['status'] ] : $row['status'],
 					$courier ? $courier->display_name : '',
-					$row['handed_to_courier_at'],
-					$row['delivered_at'],
+					PKST_Jalali::format( $row['handed_to_courier_at'] ),
+					PKST_Jalali::format( $row['delivered_at'] ),
 					$row['pod_receiver_name'],
 					$row['pod_failure_reason'],
-					$row['created_at'],
+					PKST_Jalali::format( $row['created_at'] ),
 				)
 			);
 		}

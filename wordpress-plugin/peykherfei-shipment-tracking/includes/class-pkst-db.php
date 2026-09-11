@@ -20,4 +20,9 @@ class PKST_DB {
 		global $wpdb;
 		return $wpdb->prefix . 'pkst_status_log';
 	}
+
+	public static function addresses_table() {
+		global $wpdb;
+		return $wpdb->prefix . 'pkst_addresses';
+	}
 }

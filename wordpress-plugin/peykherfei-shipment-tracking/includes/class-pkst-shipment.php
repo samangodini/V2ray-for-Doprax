@@ -34,7 +34,10 @@ class PKST_Shipment {
 			'recipient_phone'       => $recipient_phone,
 			'origin'                => isset( $data['origin'] ) ? sanitize_text_field( $data['origin'] ) : '',
 			'destination'           => $destination,
+			'destination_lat'       => self::sanitize_coordinate( $data['destination_lat'] ?? null ),
+			'destination_lng'       => self::sanitize_coordinate( $data['destination_lng'] ?? null ),
 			'description'           => isset( $data['description'] ) ? sanitize_text_field( $data['description'] ) : '',
+			'price'                 => self::sanitize_price( $data['price'] ?? null ),
 			'status'                => $status,
 			'courier_id'            => ! empty( $data['courier_id'] ) ? absint( $data['courier_id'] ) : null,
 			'customer_user_id'      => ! empty( $data['customer_user_id'] ) ? absint( $data['customer_user_id'] ) : null,
@@ -44,7 +47,7 @@ class PKST_Shipment {
 			'updated_at'            => $now,
 		);
 
-		$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%d', '%s', '%s' );
+		$formats = array( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%f', '%f', '%s', '%d', '%s', '%d', '%d', '%s', '%d', '%s', '%s' );
 
 		$wpdb->insert( PKST_DB::shipments_table(), $row, $formats );
 
@@ -75,15 +78,19 @@ class PKST_Shipment {
 		}
 
 		$editable = array(
-			'sender_name'      => 'text',
-			'sender_phone'     => 'phone',
-			'recipient_name'   => 'text',
-			'recipient_phone'  => 'phone',
-			'origin'           => 'text',
-			'destination'      => 'textarea',
-			'description'      => 'text',
-			'courier_id'       => 'int',
-			'customer_user_id' => 'int',
+			'sender_name'          => 'text',
+			'sender_phone'         => 'phone',
+			'recipient_name'       => 'text',
+			'recipient_phone'      => 'phone',
+			'origin'               => 'text',
+			'destination'          => 'textarea',
+			'destination_lat'      => 'coordinate',
+			'destination_lng'      => 'coordinate',
+			'description'          => 'text',
+			'price'                => 'price',
+			'courier_id'           => 'int',
+			'customer_user_id'     => 'int',
+			'handed_to_courier_at' => 'datetime',
 		);
 
 		$row     = array();
@@ -105,6 +112,21 @@ class PKST_Shipment {
 				case 'int':
 					$row[ $field ] = $data[ $field ] ? absint( $data[ $field ] ) : null;
 					$formats[]     = '%d';
+					break;
+				case 'coordinate':
+					$row[ $field ] = self::sanitize_coordinate( $data[ $field ] );
+					$formats[]     = '%f';
+					break;
+				case 'price':
+					$row[ $field ] = self::sanitize_price( $data[ $field ] );
+					$formats[]     = '%d';
+					break;
+				case 'datetime':
+					if ( '' === $data[ $field ] ) {
+						break;
+					}
+					$row[ $field ] = self::sanitize_datetime( $data[ $field ] );
+					$formats[]     = '%s';
 					break;
 				default:
 					$row[ $field ] = sanitize_text_field( $data[ $field ] );
@@ -341,7 +363,7 @@ class PKST_Shipment {
 			$values[] = self::sanitize_phone( $args['recipient_phone'] );
 		}
 
-		$allowed_orderby = array( 'created_at', 'updated_at', 'status', 'recipient_name', 'handed_to_courier_at' );
+		$allowed_orderby = array( 'created_at', 'updated_at', 'status', 'recipient_name', 'handed_to_courier_at', 'price' );
 		$orderby          = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'created_at';
 		$order            = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 
@@ -419,6 +441,39 @@ class PKST_Shipment {
 	public static function sanitize_phone( $phone ) {
 		$phone = preg_replace( '/[^0-9+]/', '', (string) $phone );
 		return sanitize_text_field( $phone );
+	}
+
+	/**
+	 * Accepts a price typed with Persian digits and/or thousands separators
+	 * (as the admin form's live-formatting JS produces) and returns a plain
+	 * non-negative integer, or null when nothing usable was given.
+	 */
+	public static function sanitize_price( $price ) {
+		if ( null === $price || '' === $price ) {
+			return null;
+		}
+		$normalized = PKST_Jalali::from_persian_digits( (string) $price );
+		$normalized = preg_replace( '/[^0-9]/', '', $normalized );
+		return '' === $normalized ? null : absint( $normalized );
+	}
+
+	public static function sanitize_coordinate( $value ) {
+		if ( null === $value || '' === $value || ! is_numeric( $value ) ) {
+			return null;
+		}
+		return round( (float) $value, 7 );
+	}
+
+	/**
+	 * @return string Formatted with thousands separators and Persian
+	 *                digits, e.g. "۱٬۵۰۰٬۰۰۰ تومان", or '' when unset.
+	 */
+	public static function format_price( $price ) {
+		if ( null === $price || '' === $price ) {
+			return '';
+		}
+		$formatted = number_format( (float) $price, 0, '.', '٬' );
+		return PKST_Jalali::to_persian_digits( $formatted ) . ' تومان';
 	}
 
 	/**

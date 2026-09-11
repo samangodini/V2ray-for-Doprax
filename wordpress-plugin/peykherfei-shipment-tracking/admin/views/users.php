@@ -57,6 +57,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 								),
 								'pkst_toggle_active_' . $courier->ID
 							);
+							$delete_url = wp_nonce_url(
+								add_query_arg(
+									array(
+										'action'  => 'pkst_delete_user',
+										'user_id' => $courier->ID,
+									),
+									admin_url( 'admin-post.php' )
+								),
+								'pkst_delete_user_' . $courier->ID
+							);
 							?>
 							<tr>
 								<td><?php echo esc_html( $courier->display_name ); ?></td>
@@ -64,7 +74,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 								<td dir="ltr"><?php echo esc_html( PKST_User_Manager::get_phone( $courier->ID ) ); ?></td>
 								<td><?php echo esc_html( $open['total'] ); ?></td>
 								<td><?php echo $active ? '<span class="pkst-badge pkst-badge-success">' . esc_html__( 'فعال', 'peykherfei-shipment-tracking' ) . '</span>' : '<span class="pkst-badge pkst-badge-neutral">' . esc_html__( 'غیرفعال', 'peykherfei-shipment-tracking' ) . '</span>'; ?></td>
-								<td><a class="button button-small" href="<?php echo esc_url( $toggle_url ); ?>"><?php echo $active ? esc_html__( 'غیرفعال کردن', 'peykherfei-shipment-tracking' ) : esc_html__( 'فعال کردن', 'peykherfei-shipment-tracking' ); ?></a></td>
+								<td>
+									<a class="button button-small" href="<?php echo esc_url( $toggle_url ); ?>"><?php echo $active ? esc_html__( 'غیرفعال کردن', 'peykherfei-shipment-tracking' ) : esc_html__( 'فعال کردن', 'peykherfei-shipment-tracking' ); ?></a>
+									<a class="button button-small pkst-btn-delete" href="<?php echo esc_url( $delete_url ); ?>" onclick="return confirm('<?php echo esc_js( __( 'این پیک برای همیشه حذف شود؟', 'peykherfei-shipment-tracking' ) ); ?>');"><?php esc_html_e( 'حذف', 'peykherfei-shipment-tracking' ); ?></a>
+								</td>
 							</tr>
 						<?php endforeach; ?>
 						</tbody>
@@ -82,13 +95,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<th><?php esc_html_e( 'نام', 'peykherfei-shipment-tracking' ); ?></th>
 							<th><?php esc_html_e( 'ایمیل', 'peykherfei-shipment-tracking' ); ?></th>
 							<th><?php esc_html_e( 'تلفن', 'peykherfei-shipment-tracking' ); ?></th>
+							<th></th>
 						</tr></thead>
 						<tbody>
 						<?php foreach ( $customers as $customer ) : ?>
+							<?php
+							$delete_url = wp_nonce_url(
+								add_query_arg(
+									array(
+										'action'  => 'pkst_delete_user',
+										'user_id' => $customer->ID,
+									),
+									admin_url( 'admin-post.php' )
+								),
+								'pkst_delete_user_' . $customer->ID
+							);
+							?>
 							<tr>
 								<td><?php echo esc_html( $customer->display_name ); ?></td>
 								<td><?php echo esc_html( $customer->user_email ); ?></td>
 								<td dir="ltr"><?php echo esc_html( PKST_User_Manager::get_phone( $customer->ID ) ); ?></td>
+								<td><a class="button button-small pkst-btn-delete" href="<?php echo esc_url( $delete_url ); ?>" onclick="return confirm('<?php echo esc_js( __( 'این مشتری برای همیشه حذف شود؟', 'peykherfei-shipment-tracking' ) ); ?>');"><?php esc_html_e( 'حذف', 'peykherfei-shipment-tracking' ); ?></a></td>
 							</tr>
 						<?php endforeach; ?>
 						</tbody>
