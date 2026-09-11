@@ -17,7 +17,7 @@ class PKST_Settings {
 		return array(
 			'company_name'        => 'پیک خرفه',
 			'tracking_code_prefix' => 'PK',
-			'sms_enabled'         => '1',
+			'sms_enabled'         => '0',
 			'sms_gateway'         => 'kavenegar',
 			'sms_sender_number'   => '',
 			'kavenegar_api_key'   => '',
