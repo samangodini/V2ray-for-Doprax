@@ -27,11 +27,34 @@ class PKST_Export {
 		);
 
 		$result = PKST_Shipment::query( $args );
+
+		self::stream_shipments_csv( $result['items'], 'shipments-' . gmdate( 'Y-m-d-His' ) . '.csv' );
+	}
+
+	/**
+	 * Lets a logged-in customer download their own shipment history --
+	 * the exact same set of rows their panel shows them (get_for_customer():
+	 * shipments explicitly linked to their account, plus any whose
+	 * recipient phone matches the phone on file), never any other
+	 * customer's data.
+	 */
+	public static function handle_customer_csv_export() {
+		if ( ! PKST_Roles::current_user_is_customer() ) {
+			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
+		}
+		check_admin_referer( 'pkst_export_my_shipments' );
+
+		$items = PKST_Shipment::get_for_customer( get_current_user_id(), 100000 );
+
+		self::stream_shipments_csv( $items, 'my-shipments-' . gmdate( 'Y-m-d-His' ) . '.csv' );
+	}
+
+	private static function stream_shipments_csv( array $items, $filename ) {
 		$labels = PKST_Status::labels();
 
 		nocache_headers();
 		header( 'Content-Type: text/csv; charset=utf-8' );
-		header( 'Content-Disposition: attachment; filename=shipments-' . gmdate( 'Y-m-d-His' ) . '.csv' );
+		header( 'Content-Disposition: attachment; filename=' . $filename );
 
 		$out = fopen( 'php://output', 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
@@ -54,7 +77,7 @@ class PKST_Export {
 			)
 		);
 
-		foreach ( $result['items'] as $row ) {
+		foreach ( $items as $row ) {
 			$courier = $row['courier_id'] ? get_userdata( $row['courier_id'] ) : null;
 
 			fputcsv(
@@ -74,6 +97,61 @@ class PKST_Export {
 					PKST_Jalali::format( $row['created_at'] ),
 				)
 			);
+		}
+
+		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+		exit;
+	}
+
+	/** Courier + customer accounts (id, name, email, phone, role, status), for the admin's own records. */
+	public static function handle_users_csv_export() {
+		if ( ! current_user_can( 'pkst_manage_users' ) ) {
+			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
+		}
+		check_admin_referer( 'pkst_export_users_csv' );
+
+		nocache_headers();
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=users-' . gmdate( 'Y-m-d-His' ) . '.csv' );
+
+		$out = fopen( 'php://output', 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+		fwrite( $out, "\xEF\xBB\xBF" ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+
+		fputcsv(
+			$out,
+			array(
+				__( 'شناسه', 'peykherfei-shipment-tracking' ),
+				__( 'نام', 'peykherfei-shipment-tracking' ),
+				__( 'نقش', 'peykherfei-shipment-tracking' ),
+				__( 'ایمیل', 'peykherfei-shipment-tracking' ),
+				__( 'شماره تماس', 'peykherfei-shipment-tracking' ),
+				__( 'وسیله نقلیه', 'peykherfei-shipment-tracking' ),
+				__( 'وضعیت', 'peykherfei-shipment-tracking' ),
+				__( 'تاریخ عضویت', 'peykherfei-shipment-tracking' ),
+			)
+		);
+
+		$role_labels = array(
+			PKST_Roles::COURIER  => __( 'پیک', 'peykherfei-shipment-tracking' ),
+			PKST_Roles::CUSTOMER => __( 'مشتری', 'peykherfei-shipment-tracking' ),
+		);
+
+		foreach ( array( PKST_Roles::COURIER, PKST_Roles::CUSTOMER ) as $role ) {
+			foreach ( PKST_User_Manager::list_by_role( $role ) as $user ) {
+				fputcsv(
+					$out,
+					array(
+						$user->ID,
+						$user->display_name,
+						$role_labels[ $role ],
+						$user->user_email,
+						PKST_User_Manager::get_phone( $user->ID ),
+						PKST_Roles::COURIER === $role ? PKST_User_Manager::get_vehicle( $user->ID ) : '',
+						PKST_User_Manager::is_active( $user->ID ) ? __( 'فعال', 'peykherfei-shipment-tracking' ) : __( 'غیرفعال', 'peykherfei-shipment-tracking' ),
+						PKST_Jalali::format( $user->user_registered ),
+					)
+				);
+			}
 		}
 
 		fclose( $out ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose

@@ -31,6 +31,7 @@ class PKST_Public {
 		add_action( 'admin_post_pkst_courier_update_status', array( $this, 'handle_courier_update_status' ) );
 		add_action( 'admin_post_pkst_save_address', array( $this, 'handle_save_address' ) );
 		add_action( 'admin_post_pkst_delete_address', array( $this, 'handle_delete_address' ) );
+		add_action( 'admin_post_pkst_export_my_shipments', array( 'PKST_Export', 'handle_customer_csv_export' ) );
 	}
 
 	public function maybe_enqueue() {

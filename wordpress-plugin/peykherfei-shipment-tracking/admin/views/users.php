@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap pkst-wrap" dir="rtl">
-	<h1><?php esc_html_e( 'کاربران و پیک‌ها', 'peykherfei-shipment-tracking' ); ?></h1>
+	<h1><?php echo PKST_Icons::svg( 'users', 22 ); ?> <?php esc_html_e( 'کاربران و پیک‌ها', 'peykherfei-shipment-tracking' ); ?></h1>
 	<?php PKST_Admin::notice_from_query(); ?>
 
 	<?php if ( ! empty( $new_user_credentials ) ) : ?>
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="pkst-col-main">
 
 			<div class="pkst-panel">
-				<h2><?php esc_html_e( 'پیک‌ها', 'peykherfei-shipment-tracking' ); ?></h2>
+				<h2><?php echo PKST_Icons::svg( 'truck', 18 ); ?> <?php esc_html_e( 'پیک‌ها', 'peykherfei-shipment-tracking' ); ?></h2>
 				<?php if ( empty( $couriers ) ) : ?>
 					<p class="description"><?php esc_html_e( 'هنوز پیکی ثبت نشده است.', 'peykherfei-shipment-tracking' ); ?></p>
 				<?php else : ?>
@@ -67,16 +67,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 								),
 								'pkst_delete_user_' . $courier->ID
 							);
+							$edit_url = add_query_arg(
+								array(
+									'page'    => 'pkst-users',
+									'action'  => 'edit',
+									'user_id' => $courier->ID,
+								),
+								admin_url( 'admin.php' )
+							);
 							?>
 							<tr>
-								<td><?php echo esc_html( $courier->display_name ); ?></td>
+								<td class="pkst-user-cell"><span class="pkst-avatar"><?php echo esc_html( mb_substr( $courier->display_name, 0, 1 ) ); ?></span> <?php echo esc_html( $courier->display_name ); ?></td>
 								<td><?php echo esc_html( $courier->user_email ); ?></td>
 								<td dir="ltr"><?php echo esc_html( PKST_User_Manager::get_phone( $courier->ID ) ); ?></td>
 								<td><?php echo esc_html( $open['total'] ); ?></td>
 								<td><?php echo $active ? '<span class="pkst-badge pkst-badge-success">' . esc_html__( 'فعال', 'peykherfei-shipment-tracking' ) . '</span>' : '<span class="pkst-badge pkst-badge-neutral">' . esc_html__( 'غیرفعال', 'peykherfei-shipment-tracking' ) . '</span>'; ?></td>
-								<td>
+								<td class="pkst-row-actions">
+									<a class="button button-small" href="<?php echo esc_url( $edit_url ); ?>"><?php echo PKST_Icons::svg( 'edit', 14 ); ?> <?php esc_html_e( 'ویرایش', 'peykherfei-shipment-tracking' ); ?></a>
 									<a class="button button-small" href="<?php echo esc_url( $toggle_url ); ?>"><?php echo $active ? esc_html__( 'غیرفعال کردن', 'peykherfei-shipment-tracking' ) : esc_html__( 'فعال کردن', 'peykherfei-shipment-tracking' ); ?></a>
-									<a class="button button-small pkst-btn-delete" href="<?php echo esc_url( $delete_url ); ?>" onclick="return confirm('<?php echo esc_js( __( 'این پیک برای همیشه حذف شود؟', 'peykherfei-shipment-tracking' ) ); ?>');"><?php esc_html_e( 'حذف', 'peykherfei-shipment-tracking' ); ?></a>
+									<a class="button button-small pkst-btn-delete" href="<?php echo esc_url( $delete_url ); ?>" onclick="return confirm('<?php echo esc_js( __( 'این پیک برای همیشه حذف شود؟', 'peykherfei-shipment-tracking' ) ); ?>');"><?php echo PKST_Icons::svg( 'trash', 14 ); ?> <?php esc_html_e( 'حذف', 'peykherfei-shipment-tracking' ); ?></a>
 								</td>
 							</tr>
 						<?php endforeach; ?>
@@ -86,7 +95,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</div>
 
 			<div class="pkst-panel">
-				<h2><?php esc_html_e( 'مشتریان', 'peykherfei-shipment-tracking' ); ?></h2>
+				<h2><?php echo PKST_Icons::svg( 'users', 18 ); ?> <?php esc_html_e( 'مشتریان', 'peykherfei-shipment-tracking' ); ?></h2>
 				<?php if ( empty( $customers ) ) : ?>
 					<p class="description"><?php esc_html_e( 'هنوز مشتری‌ای ثبت نشده است.', 'peykherfei-shipment-tracking' ); ?></p>
 				<?php else : ?>
@@ -110,12 +119,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 								),
 								'pkst_delete_user_' . $customer->ID
 							);
+							$edit_url = add_query_arg(
+								array(
+									'page'    => 'pkst-users',
+									'action'  => 'edit',
+									'user_id' => $customer->ID,
+								),
+								admin_url( 'admin.php' )
+							);
 							?>
 							<tr>
-								<td><?php echo esc_html( $customer->display_name ); ?></td>
+								<td class="pkst-user-cell"><span class="pkst-avatar"><?php echo esc_html( mb_substr( $customer->display_name, 0, 1 ) ); ?></span> <?php echo esc_html( $customer->display_name ); ?></td>
 								<td><?php echo esc_html( $customer->user_email ); ?></td>
 								<td dir="ltr"><?php echo esc_html( PKST_User_Manager::get_phone( $customer->ID ) ); ?></td>
-								<td><a class="button button-small pkst-btn-delete" href="<?php echo esc_url( $delete_url ); ?>" onclick="return confirm('<?php echo esc_js( __( 'این مشتری برای همیشه حذف شود؟', 'peykherfei-shipment-tracking' ) ); ?>');"><?php esc_html_e( 'حذف', 'peykherfei-shipment-tracking' ); ?></a></td>
+								<td class="pkst-row-actions">
+									<a class="button button-small" href="<?php echo esc_url( $edit_url ); ?>"><?php echo PKST_Icons::svg( 'edit', 14 ); ?> <?php esc_html_e( 'ویرایش', 'peykherfei-shipment-tracking' ); ?></a>
+									<a class="button button-small pkst-btn-delete" href="<?php echo esc_url( $delete_url ); ?>" onclick="return confirm('<?php echo esc_js( __( 'این مشتری برای همیشه حذف شود؟', 'peykherfei-shipment-tracking' ) ); ?>');"><?php echo PKST_Icons::svg( 'trash', 14 ); ?> <?php esc_html_e( 'حذف', 'peykherfei-shipment-tracking' ); ?></a>
+								</td>
 							</tr>
 						<?php endforeach; ?>
 						</tbody>
@@ -126,7 +146,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<div class="pkst-col-side">
 			<div class="pkst-panel">
-				<h2><?php esc_html_e( 'ایجاد کاربر جدید', 'peykherfei-shipment-tracking' ); ?></h2>
+				<h2><?php echo PKST_Icons::svg( 'plus', 18 ); ?> <?php esc_html_e( 'ایجاد کاربر جدید', 'peykherfei-shipment-tracking' ); ?></h2>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 					<input type="hidden" name="action" value="pkst_create_user" />
 					<?php wp_nonce_field( 'pkst_create_user' ); ?>

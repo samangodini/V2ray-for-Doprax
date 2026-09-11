@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<p class="pkst-notice pkst-notice-danger"><?php echo esc_html( $error_msg ? $error_msg : __( 'خطایی رخ داد.', 'peykherfei-shipment-tracking' ) ); ?></p>
 	<?php endif; ?>
 
-	<h3><?php esc_html_e( 'آدرس‌های ذخیره‌شده من', 'peykherfei-shipment-tracking' ); ?></h3>
+	<h3><?php echo PKST_Icons::svg( 'pin', 18 ); ?> <?php esc_html_e( 'آدرس‌های ذخیره‌شده من', 'peykherfei-shipment-tracking' ); ?></h3>
 
 	<?php if ( empty( $addresses ) ) : ?>
 		<p class="pkst-muted"><?php esc_html_e( 'هنوز آدرسی ذخیره نکرده‌اید.', 'peykherfei-shipment-tracking' ); ?></p>
@@ -45,12 +45,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<strong><?php echo esc_html( $addr['label'] ); ?></strong>
 					<div class="pkst-muted"><?php echo esc_html( $addr['address_text'] ); ?></div>
 				</div>
-				<a class="pkst-btn" href="<?php echo esc_url( $delete_url ); ?>" onclick="return confirm('<?php echo esc_js( __( 'این آدرس حذف شود؟', 'peykherfei-shipment-tracking' ) ); ?>');"><?php esc_html_e( 'حذف', 'peykherfei-shipment-tracking' ); ?></a>
+				<a class="pkst-btn" href="<?php echo esc_url( $delete_url ); ?>" onclick="return confirm('<?php echo esc_js( __( 'این آدرس حذف شود؟', 'peykherfei-shipment-tracking' ) ); ?>');"><?php echo PKST_Icons::svg( 'trash', 15 ); ?> <?php esc_html_e( 'حذف', 'peykherfei-shipment-tracking' ); ?></a>
 			</div>
 		<?php endforeach; ?>
 	<?php endif; ?>
 
-	<h3><?php esc_html_e( 'افزودن آدرس جدید', 'peykherfei-shipment-tracking' ); ?></h3>
+	<h3><?php echo PKST_Icons::svg( 'plus', 18 ); ?> <?php esc_html_e( 'افزودن آدرس جدید', 'peykherfei-shipment-tracking' ); ?></h3>
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="pkst-form">
 		<input type="hidden" name="action" value="pkst_save_address" />
 		<?php wp_nonce_field( 'pkst_save_address' ); ?>

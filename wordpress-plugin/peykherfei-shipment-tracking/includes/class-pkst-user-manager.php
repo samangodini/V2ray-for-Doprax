@@ -82,6 +82,97 @@ class PKST_User_Manager {
 	}
 
 	/**
+	 * Full edit of an existing courier/customer account: name, email,
+	 * phone, vehicle, role, and (optionally) a password reset -- unlike
+	 * create_user(), every field here is optional in $args so a caller can
+	 * submit only what changed; only keys actually present are applied.
+	 * Restricted to accounts that are already a courier/customer (never
+	 * lets this screen touch an administrator account), and role changes
+	 * are restricted to the same COURIER/CUSTOMER pair create_user() allows
+	 * -- this can never be used to grant admin/manager access.
+	 *
+	 * @return true|array|WP_Error True, or an array with a fresh 'password'
+	 *                              when one was (re)set, or WP_Error.
+	 */
+	public static function update_user( $user_id, array $args ) {
+		$user_id = absint( $user_id );
+		$user    = get_userdata( $user_id );
+
+		if ( ! $user || ! in_array( self::role_of( $user ), array( PKST_Roles::COURIER, PKST_Roles::CUSTOMER ), true ) ) {
+			return new WP_Error( 'pkst_user_not_found', __( 'کاربر یافت نشد.', 'peykherfei-shipment-tracking' ) );
+		}
+
+		$update = array( 'ID' => $user_id );
+
+		if ( isset( $args['name'] ) ) {
+			$name = sanitize_text_field( $args['name'] );
+			if ( '' === $name ) {
+				return new WP_Error( 'pkst_missing_name', __( 'نام کاربر الزامی است.', 'peykherfei-shipment-tracking' ) );
+			}
+			$update['display_name'] = $name;
+			$update['first_name']   = $name;
+		}
+
+		if ( isset( $args['email'] ) ) {
+			$email = sanitize_email( $args['email'] );
+			if ( '' === $email || ! is_email( $email ) ) {
+				return new WP_Error( 'pkst_invalid_email', __( 'ایمیل معتبر الزامی است.', 'peykherfei-shipment-tracking' ) );
+			}
+			$existing = email_exists( $email );
+			if ( $existing && (int) $existing !== $user_id ) {
+				return new WP_Error( 'pkst_email_exists', __( 'این ایمیل قبلاً ثبت شده است.', 'peykherfei-shipment-tracking' ) );
+			}
+			$update['user_email'] = $email;
+		}
+
+		$new_password = null;
+		if ( ! empty( $args['password'] ) ) {
+			$new_password        = $args['password'];
+			$update['user_pass'] = $new_password;
+		}
+
+		if ( count( $update ) > 1 ) {
+			$result = wp_update_user( $update );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+		}
+
+		if ( isset( $args['phone'] ) ) {
+			update_user_meta( $user_id, 'pkst_phone', PKST_Shipment::sanitize_phone( $args['phone'] ) );
+		}
+
+		if ( array_key_exists( 'role', $args ) && in_array( $args['role'], array( PKST_Roles::COURIER, PKST_Roles::CUSTOMER ), true ) ) {
+			$user->set_role( $args['role'] );
+		}
+
+		$effective_role = isset( $args['role'] ) && in_array( $args['role'], array( PKST_Roles::COURIER, PKST_Roles::CUSTOMER ), true )
+			? $args['role']
+			: self::role_of( $user );
+
+		if ( PKST_Roles::COURIER === $effective_role && isset( $args['vehicle'] ) ) {
+			update_user_meta( $user_id, 'pkst_vehicle', sanitize_text_field( $args['vehicle'] ) );
+		}
+
+		if ( array_key_exists( 'active', $args ) ) {
+			self::update_status_active( $user_id, ! empty( $args['active'] ) );
+		}
+
+		return $new_password ? array( 'password' => $new_password ) : true;
+	}
+
+	public static function role_of( $user ) {
+		if ( ! $user || empty( $user->roles ) ) {
+			return '';
+		}
+		return current( $user->roles );
+	}
+
+	public static function get_vehicle( $user_id ) {
+		return get_user_meta( $user_id, 'pkst_vehicle', true );
+	}
+
+	/**
 	 * Deletes a courier/customer account outright (deactivating only hides
 	 * it from active use, it doesn't remove it). Shipment history is kept
 	 * for the record, but its courier_id/customer_user_id are cleared

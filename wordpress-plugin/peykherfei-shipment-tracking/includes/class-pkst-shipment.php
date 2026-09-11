@@ -27,7 +27,11 @@ class PKST_Shipment {
 		$status = ! empty( $data['status'] ) && PKST_Status::is_valid( $data['status'] ) ? $data['status'] : PKST_Status::REGISTERED;
 
 		$row = array(
-			'tracking_code'         => PKST_Tracking_Code::generate(),
+			// Only the backup-restore path (PKST_Backup) ever passes a
+			// pre-existing tracking_code, to preserve codes customers may
+			// already have been given; every normal caller (admin form,
+			// REST API) omits it and gets a freshly generated one.
+			'tracking_code'         => ! empty( $data['tracking_code'] ) ? sanitize_text_field( $data['tracking_code'] ) : PKST_Tracking_Code::generate(),
 			'sender_name'           => isset( $data['sender_name'] ) ? sanitize_text_field( $data['sender_name'] ) : '',
 			'sender_phone'          => isset( $data['sender_phone'] ) ? self::sanitize_phone( $data['sender_phone'] ) : '',
 			'recipient_name'        => $recipient_name,
@@ -410,6 +414,12 @@ class PKST_Shipment {
 		$counts['overdue'] = (int) $wpdb->get_var( $wpdb->prepare( $overdue_sql, array_merge( $open_statuses, array( $threshold ) ) ) );
 
 		return $counts;
+	}
+
+	public static function total_revenue() {
+		global $wpdb;
+		$table = PKST_DB::shipments_table();
+		return (int) $wpdb->get_var( "SELECT SUM(price) FROM {$table}" );
 	}
 
 	public static function courier_performance() {

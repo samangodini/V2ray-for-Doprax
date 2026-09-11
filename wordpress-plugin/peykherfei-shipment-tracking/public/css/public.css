@@ -188,11 +188,23 @@
 }
 
 .pkst-front h3 {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 	font-size: 16px;
 	font-weight: 700;
 	margin: 24px 0 12px;
 	padding-inline-start: 10px;
 	border-inline-start: 3px solid var(--pkst-gold);
+}
+
+.pkst-front .pkst-icon {
+	flex-shrink: 0;
+	vertical-align: -3px;
+}
+
+.pkst-front h3 .pkst-icon {
+	color: var(--pkst-gold);
 }
 
 .pkst-front > h3:first-of-type {

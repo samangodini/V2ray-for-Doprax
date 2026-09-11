@@ -12,7 +12,7 @@ $g = function ( $key, $default = '' ) use ( $settings ) {
 };
 ?>
 <div class="wrap pkst-wrap" dir="rtl">
-	<h1><?php esc_html_e( 'تنظیمات سامانه مرسولات', 'peykherfei-shipment-tracking' ); ?></h1>
+	<h1><?php echo PKST_Icons::svg( 'settings', 22 ); ?> <?php esc_html_e( 'تنظیمات سامانه مرسولات', 'peykherfei-shipment-tracking' ); ?></h1>
 	<?php PKST_Admin::notice_from_query(); ?>
 
 	<h2 class="nav-tab-wrapper">
@@ -53,7 +53,7 @@ $g = function ( $key, $default = '' ) use ( $settings ) {
 
 	<?php else : ?>
 		<div class="pkst-panel">
-			<h2><?php esc_html_e( 'اتصال به سامانه‌های خارجی', 'peykherfei-shipment-tracking' ); ?></h2>
+			<h2><?php echo PKST_Icons::svg( 'settings', 18 ); ?> <?php esc_html_e( 'اتصال به سامانه‌های خارجی', 'peykherfei-shipment-tracking' ); ?></h2>
 			<p><?php esc_html_e( 'برای اتصال سامانه‌های داخلی (مانند نرم‌افزار انبار یا فروش) جهت ثبت و به‌روزرسانی خودکار مرسولات از این وب‌سرویس استفاده کنید.', 'peykherfei-shipment-tracking' ); ?></p>
 
 			<table class="widefat striped pkst-kv">

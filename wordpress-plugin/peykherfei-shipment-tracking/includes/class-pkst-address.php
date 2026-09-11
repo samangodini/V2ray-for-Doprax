@@ -61,6 +61,13 @@ class PKST_Address {
 		return $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE user_id = %d ORDER BY label ASC", absint( $user_id ) ), ARRAY_A );
 	}
 
+	/** All saved addresses across all customers, for the admin backup export. */
+	public static function list_all() {
+		global $wpdb;
+		$table = PKST_DB::addresses_table();
+		return $wpdb->get_results( "SELECT * FROM {$table} ORDER BY user_id ASC, label ASC", ARRAY_A );
+	}
+
 	/**
 	 * @return true|WP_Error True on success. Errors rather than silently
 	 *                       no-ops so a spoofed ID for someone else's

@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<div class="pkst-muted">
 		<?php echo esc_html( $shipment['destination'] ); ?>
 		<?php if ( ! empty( $shipment['destination_lat'] ) && ! empty( $shipment['destination_lng'] ) ) : ?>
-			— <a href="<?php echo esc_url( PKST_Geolocation::google_maps_url( $shipment['destination_lat'], $shipment['destination_lng'] ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'مشاهده روی نقشه', 'peykherfei-shipment-tracking' ); ?></a>
+			— <a href="<?php echo esc_url( PKST_Geolocation::google_maps_url( $shipment['destination_lat'], $shipment['destination_lng'] ) ); ?>" target="_blank" rel="noopener noreferrer"><?php echo PKST_Icons::svg( 'pin', 14 ); ?> <?php esc_html_e( 'مشاهده روی نقشه', 'peykherfei-shipment-tracking' ); ?></a>
 		<?php endif; ?>
 	</div>
 	<?php if ( PKST_Shipment::format_price( $shipment['price'] ?? null ) ) : ?>

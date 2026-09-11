@@ -8,6 +8,7 @@ $customer = $shipment['customer_user_id'] ? get_userdata( $shipment['customer_us
 ?>
 <div class="wrap pkst-wrap" dir="rtl">
 	<h1 class="wp-heading-inline">
+		<?php echo PKST_Icons::svg( 'box', 22 ); ?>
 		<?php
 		/* translators: %s: shipment tracking code */
 		echo esc_html( sprintf( __( 'مرسوله %s', 'peykherfei-shipment-tracking' ), $shipment['tracking_code'] ) );
@@ -23,7 +24,7 @@ $customer = $shipment['customer_user_id'] ? get_userdata( $shipment['customer_us
 		<div class="pkst-col-main">
 
 			<div class="pkst-panel">
-				<h2><?php esc_html_e( 'اطلاعات مرسوله', 'peykherfei-shipment-tracking' ); ?>
+				<h2><?php echo PKST_Icons::svg( 'box', 18 ); ?> <?php esc_html_e( 'اطلاعات مرسوله', 'peykherfei-shipment-tracking' ); ?>
 					<span class="pkst-badge <?php echo esc_attr( PKST_Status::badge_class( $shipment['status'] ) ); ?>"><?php echo esc_html( PKST_Status::label( $shipment['status'] ) ); ?></span>
 				</h2>
 				<table class="widefat striped pkst-kv">
@@ -31,7 +32,7 @@ $customer = $shipment['customer_user_id'] ? get_userdata( $shipment['customer_us
 					<tr><th><?php esc_html_e( 'مقصد', 'peykherfei-shipment-tracking' ); ?></th><td>
 						<?php echo esc_html( $shipment['destination'] ); ?>
 						<?php if ( ! empty( $shipment['destination_lat'] ) && ! empty( $shipment['destination_lng'] ) ) : ?>
-							— <a href="<?php echo esc_url( PKST_Geolocation::google_maps_url( $shipment['destination_lat'], $shipment['destination_lng'] ) ); ?>" target="_blank" rel="noopener noreferrer"><?php esc_html_e( 'مشاهده روی نقشه', 'peykherfei-shipment-tracking' ); ?></a>
+							— <a href="<?php echo esc_url( PKST_Geolocation::google_maps_url( $shipment['destination_lat'], $shipment['destination_lng'] ) ); ?>" target="_blank" rel="noopener noreferrer"><?php echo PKST_Icons::svg( 'pin', 14 ); ?> <?php esc_html_e( 'مشاهده روی نقشه', 'peykherfei-shipment-tracking' ); ?></a>
 						<?php endif; ?>
 					</td></tr>
 					<?php if ( PKST_Shipment::format_price( $shipment['price'] ?? null ) ) : ?>
@@ -82,7 +83,7 @@ $customer = $shipment['customer_user_id'] ? get_userdata( $shipment['customer_us
 			</div>
 
 			<div class="pkst-panel">
-				<h2><?php esc_html_e( 'مسیر رهگیری', 'peykherfei-shipment-tracking' ); ?></h2>
+				<h2><?php echo PKST_Icons::svg( 'pin', 18 ); ?> <?php esc_html_e( 'مسیر رهگیری', 'peykherfei-shipment-tracking' ); ?></h2>
 				<ul class="pkst-timeline">
 					<?php foreach ( $status_log as $entry ) : ?>
 						<li class="pkst-timeline-item <?php echo esc_attr( PKST_Status::badge_class( $entry['status'] ) ); ?>">
@@ -104,7 +105,7 @@ $customer = $shipment['customer_user_id'] ? get_userdata( $shipment['customer_us
 
 		<div class="pkst-col-side">
 			<div class="pkst-panel">
-				<h2><?php esc_html_e( 'به‌روزرسانی وضعیت', 'peykherfei-shipment-tracking' ); ?></h2>
+				<h2><?php echo PKST_Icons::svg( 'edit', 18 ); ?> <?php esc_html_e( 'به‌روزرسانی وضعیت', 'peykherfei-shipment-tracking' ); ?></h2>
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data" id="pkst-status-form">
 					<input type="hidden" name="action" value="pkst_update_status" />
 					<input type="hidden" name="id" value="<?php echo esc_attr( $shipment['id'] ); ?>" />

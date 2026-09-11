@@ -26,7 +26,11 @@ class PKST_Admin {
 		add_action( 'admin_post_pkst_create_user', array( $this, 'handle_create_user' ) );
 		add_action( 'admin_post_pkst_toggle_user_active', array( $this, 'handle_toggle_user_active' ) );
 		add_action( 'admin_post_pkst_delete_user', array( $this, 'handle_delete_user' ) );
+		add_action( 'admin_post_pkst_update_user', array( $this, 'handle_update_user' ) );
 		add_action( 'admin_post_pkst_export_csv', array( 'PKST_Export', 'handle_csv_export' ) );
+		add_action( 'admin_post_pkst_export_users_csv', array( 'PKST_Export', 'handle_users_csv_export' ) );
+		add_action( 'admin_post_pkst_backup_export', array( 'PKST_Backup', 'handle_export' ) );
+		add_action( 'admin_post_pkst_backup_import', array( 'PKST_Backup', 'handle_import' ) );
 		add_action( 'wp_ajax_pkst_get_customer_addresses', array( $this, 'ajax_get_customer_addresses' ) );
 	}
 
@@ -45,6 +49,7 @@ class PKST_Admin {
 		add_submenu_page( 'pkst-dashboard', __( 'همه مرسولات', 'peykherfei-shipment-tracking' ), __( 'همه مرسولات', 'peykherfei-shipment-tracking' ), 'pkst_manage_shipments', 'pkst-shipments', array( $this, 'render_shipments' ) );
 		add_submenu_page( 'pkst-dashboard', __( 'افزودن مرسوله', 'peykherfei-shipment-tracking' ), __( 'افزودن مرسوله', 'peykherfei-shipment-tracking' ), 'pkst_manage_shipments', 'pkst-shipment-add', array( $this, 'render_shipment_form' ) );
 		add_submenu_page( 'pkst-dashboard', __( 'کاربران و پیک‌ها', 'peykherfei-shipment-tracking' ), __( 'کاربران و پیک‌ها', 'peykherfei-shipment-tracking' ), 'pkst_manage_users', 'pkst-users', array( $this, 'render_users' ) );
+		add_submenu_page( 'pkst-dashboard', __( 'پشتیبان‌گیری', 'peykherfei-shipment-tracking' ), __( 'پشتیبان‌گیری', 'peykherfei-shipment-tracking' ), 'pkst_manage_settings', 'pkst-backup', array( $this, 'render_backup' ) );
 		add_submenu_page( 'pkst-dashboard', __( 'تنظیمات', 'peykherfei-shipment-tracking' ), __( 'تنظیمات', 'peykherfei-shipment-tracking' ), 'pkst_manage_settings', 'pkst-settings', array( $this, 'render_settings' ) );
 	}
 
@@ -86,6 +91,14 @@ class PKST_Admin {
 		$daily        = PKST_Reports::daily_counts( 14 );
 		$avg_minutes  = PKST_Reports::avg_delivery_minutes();
 		$courier_perf = PKST_Shipment::courier_performance();
+		$total_revenue = PKST_Shipment::total_revenue();
+		$recent       = PKST_Shipment::query(
+			array(
+				'orderby'  => 'created_at',
+				'order'    => 'DESC',
+				'per_page' => 8,
+			)
+		)['items'];
 		include PKST_PLUGIN_DIR . 'admin/views/dashboard.php';
 	}
 
@@ -131,6 +144,21 @@ class PKST_Admin {
 		if ( ! current_user_can( 'pkst_manage_users' ) ) {
 			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
 		}
+
+		if ( isset( $_GET['action'] ) && 'edit' === $_GET['action'] && isset( $_GET['user_id'] ) ) {
+			$edit_user = get_userdata( absint( $_GET['user_id'] ) );
+			if ( ! $edit_user || ! in_array( PKST_User_Manager::role_of( $edit_user ), array( PKST_Roles::COURIER, PKST_Roles::CUSTOMER ), true ) ) {
+				echo '<div class="wrap"><p>' . esc_html__( 'کاربر یافت نشد.', 'peykherfei-shipment-tracking' ) . '</p></div>';
+				return;
+			}
+			$reset_password = get_transient( 'pkst_reset_password_' . $edit_user->ID . '_' . get_current_user_id() );
+			if ( $reset_password ) {
+				delete_transient( 'pkst_reset_password_' . $edit_user->ID . '_' . get_current_user_id() );
+			}
+			include PKST_PLUGIN_DIR . 'admin/views/user-form.php';
+			return;
+		}
+
 		$couriers  = PKST_User_Manager::list_by_role( PKST_Roles::COURIER );
 		$customers = PKST_User_Manager::list_by_role( PKST_Roles::CUSTOMER );
 
@@ -150,6 +178,14 @@ class PKST_Admin {
 		$settings = PKST_Settings::get_all();
 		$api_key  = PKST_Settings::api_key();
 		include PKST_PLUGIN_DIR . 'admin/views/settings.php';
+	}
+
+	public function render_backup() {
+		if ( ! current_user_can( 'pkst_manage_settings' ) ) {
+			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
+		}
+		$counts = PKST_Shipment::counts();
+		include PKST_PLUGIN_DIR . 'admin/views/backup.php';
 	}
 
 	/* ---------------------------------------------------------------- */
@@ -391,6 +427,68 @@ class PKST_Admin {
 		exit;
 	}
 
+	public function handle_update_user() {
+		$user_id = isset( $_POST['user_id'] ) ? absint( $_POST['user_id'] ) : 0;
+		check_admin_referer( 'pkst_update_user_' . $user_id );
+		if ( ! current_user_can( 'pkst_manage_users' ) ) {
+			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
+		}
+
+		$args = array(
+			'name'    => wp_unslash( $_POST['name'] ?? '' ),
+			'email'   => wp_unslash( $_POST['email'] ?? '' ),
+			'phone'   => wp_unslash( $_POST['phone'] ?? '' ),
+			'vehicle' => wp_unslash( $_POST['vehicle'] ?? '' ),
+			'role'    => wp_unslash( $_POST['role'] ?? '' ),
+			'active'  => ! empty( $_POST['active'] ),
+		);
+		if ( ! empty( $_POST['password'] ) ) {
+			$args['password'] = wp_unslash( $_POST['password'] );
+		}
+
+		$result = PKST_User_Manager::update_user( $user_id, $args );
+
+		if ( is_wp_error( $result ) ) {
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'page'        => 'pkst-users',
+						'action'      => 'edit',
+						'user_id'     => $user_id,
+						'pkst_notice' => 'error',
+						'pkst_msg'    => rawurlencode( $result->get_error_message() ),
+					),
+					admin_url( 'admin.php' )
+				)
+			);
+			exit;
+		}
+
+		if ( is_array( $result ) && ! empty( $result['password'] ) ) {
+			/** Same one-time, server-side-only stash pattern as new-user creation -- never put a raw password in the redirect URL. */
+			set_transient(
+				'pkst_reset_password_' . $user_id . '_' . get_current_user_id(),
+				$result['password'],
+				MINUTE_IN_SECONDS
+			);
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'page'        => 'pkst-users',
+						'action'      => 'edit',
+						'user_id'     => $user_id,
+						'pkst_notice' => 'password_reset',
+					),
+					admin_url( 'admin.php' )
+				)
+			);
+			exit;
+		}
+
+		wp_safe_redirect( add_query_arg( array( 'page' => 'pkst-users', 'pkst_notice' => 'saved' ), admin_url( 'admin.php' ) ) );
+		exit;
+	}
+
 	public function ajax_get_customer_addresses() {
 		check_ajax_referer( 'pkst_admin_nonce', 'nonce' );
 		if ( ! current_user_can( 'pkst_manage_shipments' ) ) {
@@ -433,6 +531,8 @@ class PKST_Admin {
 			'status_updated' => array( 'success', __( 'وضعیت مرسوله به‌روزرسانی شد.', 'peykherfei-shipment-tracking' ) ),
 			'user_created'   => array( 'success', __( 'کاربر با موفقیت ایجاد شد.', 'peykherfei-shipment-tracking' ) ),
 			'user_deleted'   => array( 'success', __( 'کاربر حذف شد.', 'peykherfei-shipment-tracking' ) ),
+			'password_reset' => array( 'success', __( 'اطلاعات کاربر ذخیره و رمز عبور تغییر کرد.', 'peykherfei-shipment-tracking' ) ),
+			'backup_restored' => array( 'success', $msg ? $msg : __( 'بازیابی اطلاعات انجام شد.', 'peykherfei-shipment-tracking' ) ),
 			'error'          => array( 'error', $msg ? $msg : __( 'خطایی رخ داد.', 'peykherfei-shipment-tracking' ) ),
 		);
 

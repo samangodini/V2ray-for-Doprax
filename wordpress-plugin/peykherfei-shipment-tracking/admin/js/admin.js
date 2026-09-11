@@ -7,7 +7,28 @@
 		initGeneratePassword();
 		initPriceFormatting();
 		initCustomerAddresses();
+		initUserRoleToggle();
 	} );
+
+	/**
+	 * Courier-only fields (currently just "vehicle") only make sense when
+	 * the "نوع کاربر" select is set to courier; shared by both the
+	 * create-user and edit-user forms via the same two element IDs.
+	 */
+	function initUserRoleToggle() {
+		var select = document.getElementById( 'pkst-user-role' );
+		var field  = document.getElementById( 'pkst-vehicle-field' );
+		if ( ! select || ! field ) {
+			return;
+		}
+
+		function update() {
+			field.style.display = 'pkst_courier' === select.value ? '' : 'none';
+		}
+
+		select.addEventListener( 'change', update );
+		update();
+	}
 
 	/**
 	 * When a customer is linked to the shipment being created, fetch that

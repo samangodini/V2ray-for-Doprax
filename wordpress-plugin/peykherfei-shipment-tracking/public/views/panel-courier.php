@@ -34,7 +34,7 @@ $card = function ( $s, $with_action ) {
 		<p class="pkst-notice pkst-notice-success"><?php esc_html_e( 'وضعیت مرسوله با موفقیت ثبت شد.', 'peykherfei-shipment-tracking' ); ?></p>
 	<?php endif; ?>
 
-	<h3><?php esc_html_e( 'مرسولات در حال انجام', 'peykherfei-shipment-tracking' ); ?></h3>
+	<h3><?php echo PKST_Icons::svg( 'truck', 18 ); ?> <?php esc_html_e( 'مرسولات در حال انجام', 'peykherfei-shipment-tracking' ); ?></h3>
 	<?php if ( empty( $open_shipments ) ) : ?>
 		<p class="pkst-muted"><?php esc_html_e( 'در حال حاضر مرسوله بازی برای شما تخصیص داده نشده است.', 'peykherfei-shipment-tracking' ); ?></p>
 	<?php else : ?>
@@ -42,7 +42,7 @@ $card = function ( $s, $with_action ) {
 	<?php endif; ?>
 
 	<?php if ( ! empty( $closed_shipments ) ) : ?>
-		<h3><?php esc_html_e( 'تاریخچه اخیر', 'peykherfei-shipment-tracking' ); ?></h3>
+		<h3><?php echo PKST_Icons::svg( 'clock', 18 ); ?> <?php esc_html_e( 'تاریخچه اخیر', 'peykherfei-shipment-tracking' ); ?></h3>
 		<?php foreach ( $closed_shipments as $s ) : $card( $s, false ); endforeach; ?>
 	<?php endif; ?>
 </div>

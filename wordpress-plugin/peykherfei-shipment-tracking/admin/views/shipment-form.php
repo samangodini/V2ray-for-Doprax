@@ -9,7 +9,7 @@ $v       = function ( $key, $default = '' ) use ( $shipment ) {
 $handed_value = $is_edit && $shipment['handed_to_courier_at'] ? $shipment['handed_to_courier_at'] : '';
 ?>
 <div class="wrap pkst-wrap" dir="rtl">
-	<h1><?php echo $is_edit ? esc_html__( 'ویرایش مرسوله', 'peykherfei-shipment-tracking' ) : esc_html__( 'افزودن مرسوله جدید', 'peykherfei-shipment-tracking' ); ?></h1>
+	<h1><?php echo PKST_Icons::svg( $is_edit ? 'edit' : 'plus', 22 ); ?> <?php echo $is_edit ? esc_html__( 'ویرایش مرسوله', 'peykherfei-shipment-tracking' ) : esc_html__( 'افزودن مرسوله جدید', 'peykherfei-shipment-tracking' ); ?></h1>
 	<?php PKST_Admin::notice_from_query(); ?>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="pkst-form">

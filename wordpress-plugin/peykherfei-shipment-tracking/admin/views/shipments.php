@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="wrap pkst-wrap" dir="rtl">
-	<h1 class="wp-heading-inline"><?php esc_html_e( 'همه مرسولات', 'peykherfei-shipment-tracking' ); ?></h1>
+	<h1 class="wp-heading-inline"><?php echo PKST_Icons::svg( 'box', 22 ); ?> <?php esc_html_e( 'همه مرسولات', 'peykherfei-shipment-tracking' ); ?></h1>
 	<a href="<?php echo esc_url( admin_url( 'admin.php?page=pkst-shipment-add' ) ); ?>" class="page-title-action"><?php esc_html_e( 'افزودن مرسوله', 'peykherfei-shipment-tracking' ); ?></a>
 	<hr class="wp-header-end">
 
