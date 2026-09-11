@@ -12,10 +12,9 @@ global $wpdb;
 
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}pkst_shipments" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}pkst_status_log" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}pkst_sms_log" ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 delete_option( 'pkst_settings' );
-delete_option( 'pkst_sms_templates' );
+delete_option( 'pkst_sms_templates' ); // cleans up a leftover option from earlier dev builds that had per-status SMS templates.
 delete_option( 'pkst_api_key' );
 delete_option( 'pkst_db_version' );
 

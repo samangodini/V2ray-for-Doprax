@@ -27,7 +27,6 @@ class PKST_Activator {
 
 		$shipments = PKST_DB::shipments_table();
 		$status_log = PKST_DB::status_log_table();
-		$sms_log = PKST_DB::sms_log_table();
 
 		$sql = "CREATE TABLE {$shipments} (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -70,21 +69,6 @@ class PKST_Activator {
 			lat DECIMAL(10,7) NULL,
 			lng DECIMAL(10,7) NULL,
 			changed_by BIGINT UNSIGNED NULL,
-			created_at DATETIME NOT NULL,
-			PRIMARY KEY  (id),
-			KEY shipment_id (shipment_id)
-		) {$charset_collate};";
-		dbDelta( $sql );
-
-		$sql = "CREATE TABLE {$sms_log} (
-			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-			shipment_id BIGINT UNSIGNED NOT NULL,
-			phone VARCHAR(32) NOT NULL,
-			status_trigger VARCHAR(32) NOT NULL,
-			message TEXT NOT NULL,
-			gateway VARCHAR(32) NOT NULL,
-			result VARCHAR(16) NOT NULL,
-			response TEXT NULL,
 			created_at DATETIME NOT NULL,
 			PRIMARY KEY  (id),
 			KEY shipment_id (shipment_id)

@@ -177,14 +177,6 @@
 	border-radius: 4px;
 }
 
-.pkst-gateway-fields {
-	display: none;
-}
-
-.pkst-gateway-fields.pkst-active {
-	display: block;
-}
-
 .pkst-endpoint-list {
 	list-style: disc;
 	padding-inline-start: 22px;
@@ -192,14 +184,6 @@
 
 .pkst-endpoint-list li {
 	margin-bottom: 6px;
-}
-
-#pkst-test-sms-result {
-	margin-top: 10px;
-}
-
-#pkst-test-sms-result .notice {
-	padding: 8px 12px;
 }
 
 @media (max-width: 782px) {

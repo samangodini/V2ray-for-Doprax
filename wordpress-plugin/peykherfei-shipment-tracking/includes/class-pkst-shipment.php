@@ -6,8 +6,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * CRUD + query layer for shipments. All writes funnel through create()/
  * update()/update_status() so the status log and the pkst_status_changed
- * action (which SMS notifications hang off of) stay consistent no matter
- * which caller (admin form, front-end courier panel, REST API) is involved.
+ * action (a generic extension point other code can hook into) stay
+ * consistent no matter which caller (admin form, front-end courier panel,
+ * REST API) is involved.
  */
 class PKST_Shipment {
 
@@ -56,9 +57,9 @@ class PKST_Shipment {
 		self::log_status( $shipment_id, $status, __( 'ثبت مرسوله', 'peykherfei-shipment-tracking' ), null, null, get_current_user_id() );
 
 		/**
-		 * Fires after a shipment is created, and after every status change.
-		 * $context tells subscribers (e.g. the SMS manager) whether this is
-		 * a brand-new shipment or a transition.
+		 * Fires after a shipment is created, and after every status change
+		 * (see update_status() below). $context tells subscribers whether
+		 * this is a brand-new shipment or a transition.
 		 */
 		do_action( 'pkst_status_changed', $shipment_id, null, $status, array( 'is_new' => true ) );
 
@@ -129,8 +130,8 @@ class PKST_Shipment {
 
 	/**
 	 * The only path allowed to change `status`. Writes a status_log row,
-	 * updates the shipments row, and fires pkst_status_changed so the SMS
-	 * manager (and anything else) can react.
+	 * updates the shipments row, and fires pkst_status_changed so anything
+	 * hooked into it can react.
 	 */
 	public static function update_status( $id, $status, array $args = array() ) {
 		global $wpdb;
@@ -271,7 +272,6 @@ class PKST_Shipment {
 		global $wpdb;
 		$id = absint( $id );
 		$wpdb->delete( PKST_DB::status_log_table(), array( 'shipment_id' => $id ), array( '%d' ) );
-		$wpdb->delete( PKST_DB::sms_log_table(), array( 'shipment_id' => $id ), array( '%d' ) );
 		return (bool) $wpdb->delete( PKST_DB::shipments_table(), array( 'id' => $id ), array( '%d' ) );
 	}
 

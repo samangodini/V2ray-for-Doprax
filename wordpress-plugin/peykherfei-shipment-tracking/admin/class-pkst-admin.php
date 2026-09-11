@@ -22,13 +22,10 @@ class PKST_Admin {
 		add_action( 'admin_post_pkst_delete_shipment', array( $this, 'handle_delete_shipment' ) );
 		add_action( 'admin_post_pkst_update_status', array( $this, 'handle_update_status' ) );
 		add_action( 'admin_post_pkst_save_settings', array( $this, 'handle_save_settings' ) );
-		add_action( 'admin_post_pkst_save_templates', array( $this, 'handle_save_templates' ) );
 		add_action( 'admin_post_pkst_regenerate_api_key', array( $this, 'handle_regenerate_api_key' ) );
 		add_action( 'admin_post_pkst_create_user', array( $this, 'handle_create_user' ) );
 		add_action( 'admin_post_pkst_toggle_user_active', array( $this, 'handle_toggle_user_active' ) );
 		add_action( 'admin_post_pkst_export_csv', array( 'PKST_Export', 'handle_csv_export' ) );
-
-		add_action( 'wp_ajax_pkst_test_sms', array( $this, 'ajax_test_sms' ) );
 	}
 
 	public function register_menu() {
@@ -63,7 +60,6 @@ class PKST_Admin {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'pkst_admin_nonce' ),
 				'i18n'    => array(
-					'testing' => __( 'در حال ارسال...', 'peykherfei-shipment-tracking' ),
 					'clearSignature' => __( 'پاک کردن امضا', 'peykherfei-shipment-tracking' ),
 				),
 			)
@@ -97,7 +93,6 @@ class PKST_Admin {
 				return;
 			}
 			$status_log = PKST_Shipment::get_status_log( $shipment['id'] );
-			$sms_log    = PKST_SMS_Manager::get_log_for_shipment( $shipment['id'] );
 			$courier_location = $shipment['courier_id'] ? PKST_Geolocation::get_courier_location( $shipment['courier_id'] ) : null;
 			include PKST_PLUGIN_DIR . 'admin/views/shipment-view.php';
 			return;
@@ -137,10 +132,8 @@ class PKST_Admin {
 		if ( ! current_user_can( 'pkst_manage_settings' ) ) {
 			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
 		}
-		$settings  = PKST_Settings::get_all();
-		$templates = PKST_Settings::get_templates();
-		$gateways  = PKST_SMS_Gateway_Factory::options();
-		$api_key   = PKST_Settings::api_key();
+		$settings = PKST_Settings::get_all();
+		$api_key  = PKST_Settings::api_key();
 		include PKST_PLUGIN_DIR . 'admin/views/settings.php';
 	}
 
@@ -272,38 +265,13 @@ class PKST_Admin {
 		$fields = array_keys( PKST_Settings::defaults() );
 		$values = array();
 		foreach ( $fields as $field ) {
-			if ( 'custom_gateway_headers' === $field || 'custom_gateway_body' === $field ) {
-				$values[ $field ] = isset( $_POST[ $field ] ) ? sanitize_textarea_field( wp_unslash( $_POST[ $field ] ) ) : '';
-			} else {
-				$values[ $field ] = isset( $_POST[ $field ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) : '';
-			}
+			$values[ $field ] = isset( $_POST[ $field ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) : '';
 		}
-		$values['sms_enabled']              = isset( $_POST['sms_enabled'] ) ? '1' : '0';
 		$values['delete_data_on_uninstall'] = isset( $_POST['delete_data_on_uninstall'] ) ? '1' : '0';
 
 		PKST_Settings::update_many( $values );
 
 		wp_safe_redirect( add_query_arg( array( 'page' => 'pkst-settings', 'pkst_notice' => 'saved' ), admin_url( 'admin.php' ) ) );
-		exit;
-	}
-
-	public function handle_save_templates() {
-		check_admin_referer( 'pkst_save_templates' );
-		if ( ! current_user_can( 'pkst_manage_settings' ) ) {
-			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
-		}
-
-		$templates = array();
-		foreach ( PKST_Status::all() as $status ) {
-			$templates[ $status ] = array(
-				'enabled' => isset( $_POST[ 'tpl_enabled_' . $status ] ) ? '1' : '0',
-				'text'    => isset( $_POST[ 'tpl_text_' . $status ] ) ? sanitize_textarea_field( wp_unslash( $_POST[ 'tpl_text_' . $status ] ) ) : '',
-			);
-		}
-
-		PKST_Settings::update_templates( $templates );
-
-		wp_safe_redirect( add_query_arg( array( 'page' => 'pkst-settings', 'tab' => 'templates', 'pkst_notice' => 'saved' ), admin_url( 'admin.php' ) ) );
 		exit;
 	}
 
@@ -365,28 +333,6 @@ class PKST_Admin {
 
 		wp_safe_redirect( add_query_arg( array( 'page' => 'pkst-users', 'pkst_notice' => 'saved' ), admin_url( 'admin.php' ) ) );
 		exit;
-	}
-
-	public function ajax_test_sms() {
-		check_ajax_referer( 'pkst_admin_nonce', 'nonce' );
-		if ( ! current_user_can( 'pkst_manage_settings' ) ) {
-			wp_send_json_error( array( 'message' => __( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) ) );
-		}
-
-		$phone   = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
-		$gateway = isset( $_POST['gateway'] ) ? sanitize_key( $_POST['gateway'] ) : null;
-
-		if ( ! $phone ) {
-			wp_send_json_error( array( 'message' => __( 'شماره تماس را وارد کنید.', 'peykherfei-shipment-tracking' ) ) );
-		}
-
-		$result = PKST_SMS_Manager::send_test( $phone, $gateway );
-
-		if ( ! empty( $result['success'] ) ) {
-			wp_send_json_success( array( 'message' => __( 'پیامک آزمایشی ارسال شد.', 'peykherfei-shipment-tracking' ) . ' ' . $result['response'] ) );
-		}
-
-		wp_send_json_error( array( 'message' => __( 'ارسال ناموفق بود:', 'peykherfei-shipment-tracking' ) . ' ' . $result['response'] ) );
 	}
 
 	public static function notice_from_query() {

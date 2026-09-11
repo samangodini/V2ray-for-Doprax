@@ -2,28 +2,9 @@
 	'use strict';
 
 	document.addEventListener( 'DOMContentLoaded', function () {
-		initGatewayToggle();
 		initStatusPodToggle();
 		initSignaturePad();
-		initTestSms();
 	} );
-
-	function initGatewayToggle() {
-		var select = document.getElementById( 'sms_gateway' );
-		if ( ! select ) {
-			return;
-		}
-		var groups = document.querySelectorAll( '.pkst-gateway-fields' );
-
-		function update() {
-			groups.forEach( function ( group ) {
-				group.classList.toggle( 'pkst-active', group.getAttribute( 'data-gateway' ) === select.value );
-			} );
-		}
-
-		select.addEventListener( 'change', update );
-		update();
-	}
 
 	var POD_STATUSES = [ 'delivered', 'failed' ];
 
@@ -112,63 +93,5 @@
 				hidden.value = hasDrawn ? canvas.toDataURL( 'image/png' ) : '';
 			} );
 		}
-	}
-
-	function initTestSms() {
-		var btn = document.getElementById( 'pkst-test-sms-btn' );
-		if ( ! btn || typeof PKST_ADMIN === 'undefined' ) {
-			return;
-		}
-
-		btn.addEventListener( 'click', function () {
-			var phoneInput = document.getElementById( 'pkst-test-phone' );
-			var gatewaySelect = document.getElementById( 'sms_gateway' );
-			var resultBox = document.getElementById( 'pkst-test-sms-result' );
-			var phone = phoneInput ? phoneInput.value.trim() : '';
-
-			if ( ! phone || ! resultBox ) {
-				return;
-			}
-
-			btn.disabled = true;
-			var originalText = btn.textContent;
-			btn.textContent = PKST_ADMIN.i18n.testing;
-
-			var body = new URLSearchParams();
-			body.append( 'action', 'pkst_test_sms' );
-			body.append( 'nonce', PKST_ADMIN.nonce );
-			body.append( 'phone', phone );
-			if ( gatewaySelect ) {
-				body.append( 'gateway', gatewaySelect.value );
-			}
-
-			fetch( PKST_ADMIN.ajaxUrl, {
-				method: 'POST',
-				credentials: 'same-origin',
-				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-				body: body.toString(),
-			} )
-				.then( function ( res ) {
-					return res.json();
-				} )
-				.then( function ( data ) {
-					var ok = data && data.success;
-					var message = data && data.data && data.data.message ? data.data.message : '';
-					resultBox.innerHTML = '<div class="notice notice-' + ( ok ? 'success' : 'error' ) + '"><p>' + escapeHtml( message ) + '</p></div>';
-				} )
-				.catch( function () {
-					resultBox.innerHTML = '<div class="notice notice-error"><p>خطای ارتباط با سرور.</p></div>';
-				} )
-				.finally( function () {
-					btn.disabled = false;
-					btn.textContent = originalText;
-				} );
-		} );
-	}
-
-	function escapeHtml( str ) {
-		var div = document.createElement( 'div' );
-		div.textContent = str;
-		return div.innerHTML;
 	}
 })();

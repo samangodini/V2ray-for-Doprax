@@ -2,7 +2,7 @@
 /**
  * Plugin Name: پنل رهگیری مرسولات پیک خرفه
  * Plugin URI: https://peykherfei.com/
- * Description: سامانه اختصاصی ثبت، رهگیری و مدیریت مرسولات به همراه پنل مدیریت (وردپرس) و پنل کاربری برای مشتریان و پیک‌ها؛ شامل اطلاع‌رسانی پیامکی، تأییدیه تحویل (POD)، گزارش‌گیری و وب‌سرویس اتصال به سامانه‌های خارجی.
+ * Description: سامانه اختصاصی ثبت، رهگیری و مدیریت مرسولات به همراه پنل مدیریت (وردپرس) و پنل کاربری برای مشتریان و پیک‌ها؛ شامل تأییدیه تحویل (POD)، گزارش‌گیری و وب‌سرویس اتصال به سامانه‌های خارجی.
  * Version: 1.0.0
  * Author: peykherfei.com
  * Text Domain: peykherfei-shipment-tracking
@@ -31,9 +31,6 @@ require_once PKST_PLUGIN_DIR . 'includes/class-pkst-tracking-code.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-settings.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-shipment.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-pod.php';
-require_once PKST_PLUGIN_DIR . 'includes/sms-gateways/class-pkst-sms-gateway-interface.php';
-require_once PKST_PLUGIN_DIR . 'includes/sms-gateways/class-pkst-sms-gateways.php';
-require_once PKST_PLUGIN_DIR . 'includes/class-pkst-sms-manager.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-export.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-reports.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-user-manager.php';
@@ -62,7 +59,6 @@ final class PKST_Plugin {
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'plugins_loaded', array( $this, 'maybe_upgrade' ) );
 
-		PKST_SMS_Manager::instance();
 		PKST_REST_API::instance();
 
 		// PKST_Public registers shortcodes plus the admin-post/admin-ajax

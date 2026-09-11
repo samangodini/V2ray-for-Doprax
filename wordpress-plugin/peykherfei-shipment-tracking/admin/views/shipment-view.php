@@ -92,37 +92,6 @@ $customer = $shipment['customer_user_id'] ? get_userdata( $shipment['customer_us
 				</ul>
 			</div>
 
-			<div class="pkst-panel">
-				<h2><?php esc_html_e( 'سابقه پیامک‌ها', 'peykherfei-shipment-tracking' ); ?></h2>
-				<?php if ( empty( $sms_log ) ) : ?>
-					<p class="description"><?php esc_html_e( 'پیامکی ارسال نشده است.', 'peykherfei-shipment-tracking' ); ?></p>
-				<?php else : ?>
-					<table class="widefat striped">
-						<thead><tr>
-							<th><?php esc_html_e( 'تاریخ', 'peykherfei-shipment-tracking' ); ?></th>
-							<th><?php esc_html_e( 'رویداد', 'peykherfei-shipment-tracking' ); ?></th>
-							<th><?php esc_html_e( 'متن', 'peykherfei-shipment-tracking' ); ?></th>
-							<th><?php esc_html_e( 'وضعیت', 'peykherfei-shipment-tracking' ); ?></th>
-						</tr></thead>
-						<tbody>
-						<?php foreach ( $sms_log as $sms ) : ?>
-							<tr>
-								<td><?php echo esc_html( mysql2date( 'Y/m/d H:i', $sms['created_at'] ) ); ?></td>
-								<td><?php echo esc_html( PKST_Status::label( $sms['status_trigger'] ) ); ?></td>
-								<td><?php echo esc_html( wp_trim_words( $sms['message'], 12 ) ); ?></td>
-								<td>
-									<?php if ( 'sent' === $sms['result'] ) : ?>
-										<span class="pkst-badge pkst-badge-success"><?php esc_html_e( 'ارسال شد', 'peykherfei-shipment-tracking' ); ?></span>
-									<?php else : ?>
-										<span class="pkst-badge pkst-badge-danger" title="<?php echo esc_attr( $sms['response'] ); ?>"><?php esc_html_e( 'ناموفق', 'peykherfei-shipment-tracking' ); ?></span>
-									<?php endif; ?>
-								</td>
-							</tr>
-						<?php endforeach; ?>
-						</tbody>
-					</table>
-				<?php endif; ?>
-			</div>
 		</div>
 
 		<div class="pkst-col-side">
