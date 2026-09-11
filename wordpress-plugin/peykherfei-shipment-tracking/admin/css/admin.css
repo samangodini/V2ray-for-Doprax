@@ -186,6 +186,21 @@
 	margin-bottom: 6px;
 }
 
+.pkst-password-row {
+	display: flex;
+	gap: 6px;
+}
+
+.pkst-password-row input {
+	flex: 1;
+}
+
+.pkst-new-user-credentials code {
+	font-size: 14px;
+	padding: 3px 8px;
+	background: #f0f0f1;
+}
+
 @media (max-width: 782px) {
 	.pkst-columns {
 		flex-direction: column;

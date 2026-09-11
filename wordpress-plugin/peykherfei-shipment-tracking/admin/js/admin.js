@@ -4,7 +4,28 @@
 	document.addEventListener( 'DOMContentLoaded', function () {
 		initStatusPodToggle();
 		initSignaturePad();
+		initGeneratePassword();
 	} );
+
+	function initGeneratePassword() {
+		var btn = document.getElementById( 'pkst-generate-password' );
+		var field = document.getElementById( 'pkst-password' );
+		if ( ! btn || ! field ) {
+			return;
+		}
+
+		btn.addEventListener( 'click', function () {
+			var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+			var out = '';
+			for ( var i = 0; i < 12; i++ ) {
+				out += chars.charAt( Math.floor( Math.random() * chars.length ) );
+			}
+			field.value = out;
+			field.type = 'text';
+			field.focus();
+			field.select();
+		} );
+	}
 
 	var POD_STATUSES = [ 'delivered', 'failed' ];
 

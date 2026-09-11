@@ -33,7 +33,7 @@ class PKST_User_Manager {
 		}
 
 		$username = self::unique_username( $email, $name );
-		$password = ! empty( $args['password'] ) ? $args['password'] : wp_generate_password( 10, false );
+		$password = ! empty( $args['password'] ) ? $args['password'] : wp_generate_password( 12, false );
 
 		$user_id = wp_insert_user(
 			array(
@@ -62,7 +62,19 @@ class PKST_User_Manager {
 			wp_new_user_notification( $user_id, null, 'both' );
 		}
 
-		return $user_id;
+		/**
+		 * WordPress never emails the raw password (only a reset link, via
+		 * wp_new_user_notification above), so the password chosen/generated
+		 * here has to be handed back to the caller if the admin is going to
+		 * be able to see and relay it -- especially important on hosts
+		 * where outbound mail isn't configured and the reset-link email
+		 * never arrives.
+		 */
+		return array(
+			'user_id'  => $user_id,
+			'username' => $username,
+			'password' => $password,
+		);
 	}
 
 	public static function update_status_active( $user_id, $active ) {

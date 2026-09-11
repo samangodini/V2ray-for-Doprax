@@ -7,6 +7,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<h1><?php esc_html_e( 'کاربران و پیک‌ها', 'peykherfei-shipment-tracking' ); ?></h1>
 	<?php PKST_Admin::notice_from_query(); ?>
 
+	<?php if ( ! empty( $new_user_credentials ) ) : ?>
+		<div class="notice notice-success pkst-new-user-credentials">
+			<p><strong><?php esc_html_e( 'کاربر ایجاد شد. این اطلاعات فقط همین یک‌بار نمایش داده می‌شود — همین حالا برای کاربر ارسال کنید:', 'peykherfei-shipment-tracking' ); ?></strong></p>
+			<p>
+				<?php esc_html_e( 'نام کاربری:', 'peykherfei-shipment-tracking' ); ?>
+				<code dir="ltr"><?php echo esc_html( $new_user_credentials['username'] ); ?></code>
+				&nbsp;&nbsp;
+				<?php esc_html_e( 'رمز عبور:', 'peykherfei-shipment-tracking' ); ?>
+				<code dir="ltr"><?php echo esc_html( $new_user_credentials['password'] ); ?></code>
+			</p>
+		</div>
+	<?php endif; ?>
+
 	<div class="pkst-columns">
 		<div class="pkst-col-main">
 
@@ -109,6 +122,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<p>
 						<label for="phone"><?php esc_html_e( 'شماره تماس', 'peykherfei-shipment-tracking' ); ?></label>
 						<input type="text" dir="ltr" class="widefat" name="phone" id="phone" />
+					</p>
+					<p>
+						<label for="pkst-password"><?php esc_html_e( 'رمز عبور', 'peykherfei-shipment-tracking' ); ?></label>
+						<span class="pkst-password-row">
+							<input type="text" dir="ltr" class="widefat" name="password" id="pkst-password" autocomplete="off" />
+							<button type="button" class="button" id="pkst-generate-password"><?php esc_html_e( 'تولید خودکار', 'peykherfei-shipment-tracking' ); ?></button>
+						</span>
+						<span class="description"><?php esc_html_e( 'خالی بگذارید تا خودکار ساخته شود.', 'peykherfei-shipment-tracking' ); ?></span>
 					</p>
 					<p id="pkst-vehicle-field">
 						<label for="vehicle"><?php esc_html_e( 'نوع وسیله نقلیه', 'peykherfei-shipment-tracking' ); ?></label>

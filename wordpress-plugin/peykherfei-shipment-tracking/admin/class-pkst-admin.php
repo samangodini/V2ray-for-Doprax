@@ -125,6 +125,13 @@ class PKST_Admin {
 		}
 		$couriers  = PKST_User_Manager::list_by_role( PKST_Roles::COURIER );
 		$customers = PKST_User_Manager::list_by_role( PKST_Roles::CUSTOMER );
+
+		$transient_key      = 'pkst_new_user_' . get_current_user_id();
+		$new_user_credentials = get_transient( $transient_key );
+		if ( $new_user_credentials ) {
+			delete_transient( $transient_key );
+		}
+
 		include PKST_PLUGIN_DIR . 'admin/views/users.php';
 	}
 
@@ -295,12 +302,13 @@ class PKST_Admin {
 
 		$result = PKST_User_Manager::create_user(
 			array(
-				'role'    => wp_unslash( $_POST['role'] ?? '' ),
-				'name'    => wp_unslash( $_POST['name'] ?? '' ),
-				'email'   => wp_unslash( $_POST['email'] ?? '' ),
-				'phone'   => wp_unslash( $_POST['phone'] ?? '' ),
-				'vehicle' => wp_unslash( $_POST['vehicle'] ?? '' ),
-				'notify'  => ! empty( $_POST['notify'] ),
+				'role'     => wp_unslash( $_POST['role'] ?? '' ),
+				'name'     => wp_unslash( $_POST['name'] ?? '' ),
+				'email'    => wp_unslash( $_POST['email'] ?? '' ),
+				'phone'    => wp_unslash( $_POST['phone'] ?? '' ),
+				'vehicle'  => wp_unslash( $_POST['vehicle'] ?? '' ),
+				'password' => wp_unslash( $_POST['password'] ?? '' ),
+				'notify'   => ! empty( $_POST['notify'] ),
 			)
 		);
 
@@ -317,6 +325,20 @@ class PKST_Admin {
 			);
 			exit;
 		}
+
+		/**
+		 * Stashed server-side (not in the redirect URL, which would leak
+		 * the plaintext password into server/browser logs) so render_users()
+		 * can show it exactly once on the very next page load.
+		 */
+		set_transient(
+			'pkst_new_user_' . get_current_user_id(),
+			array(
+				'username' => $result['username'],
+				'password' => $result['password'],
+			),
+			MINUTE_IN_SECONDS
+		);
 
 		wp_safe_redirect( add_query_arg( array( 'page' => 'pkst-users', 'pkst_notice' => 'user_created' ), admin_url( 'admin.php' ) ) );
 		exit;
