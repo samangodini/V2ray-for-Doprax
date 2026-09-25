@@ -1,0 +1,295 @@
+/* ------------------------------------------------------------------ */
+/* Header account button + dropdown -- dark/gold, matches the site's   */
+/* black-hero header. Self-contained tokens (doesn't depend on         */
+/* .pkst-front) since this widget lives inside the theme's own header, */
+/* not inside a [pkst_panel] page.                                     */
+/* ------------------------------------------------------------------ */
+.pkst-acct {
+	--pkst-acct-black: #0c0a06;
+	--pkst-acct-surface: #17130a;
+	--pkst-acct-surface-2: #201a0d;
+	--pkst-acct-border: #3d3018;
+	--pkst-acct-gold: #e0b643;
+	--pkst-acct-gold-strong: #f4cd6a;
+	--pkst-acct-gold-soft: rgba(224, 182, 67, 0.14);
+	--pkst-acct-text: #f6f1e2;
+	--pkst-acct-text-muted: #b7ab8c;
+	--pkst-acct-on-gold: #221a08;
+	--pkst-acct-radius: 18px;
+	--pkst-acct-radius-full: 999px;
+
+	position: relative;
+	display: inline-block;
+	flex-shrink: 0;
+	direction: rtl;
+	font-family: inherit;
+	line-height: 1.6;
+	z-index: 100;
+}
+
+.pkst-acct * {
+	box-sizing: border-box;
+}
+
+/* -------------------------- Trigger button -------------------------- */
+.pkst-acct-trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 9px 18px;
+	border-radius: var(--pkst-acct-radius-full);
+	border: 1px solid rgba(224, 182, 67, 0.45);
+	background: linear-gradient(180deg, var(--pkst-acct-surface-2), var(--pkst-acct-black));
+	color: var(--pkst-acct-text);
+	font-family: inherit;
+	font-size: 14.5px;
+	font-weight: 600;
+	cursor: pointer;
+	position: relative;
+	transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.15s ease, background 0.25s ease;
+	box-shadow: 0 0 0 0 rgba(224, 182, 67, 0);
+}
+
+.pkst-acct-trigger-icon {
+	display: inline-flex;
+	color: var(--pkst-acct-gold);
+}
+
+.pkst-acct-trigger-chevron {
+	display: inline-flex;
+	color: var(--pkst-acct-text-muted);
+	transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pkst-acct.is-open .pkst-acct-trigger-chevron {
+	transform: rotate(180deg);
+}
+
+/* Idle ambient glow + a stronger one on hover/open -- the soft gold
+   halo from the reference design, done as a layered box-shadow so it
+   reads as a glow rather than a hard-edged shadow. */
+.pkst-acct-trigger {
+	box-shadow: 0 0 10px 0 rgba(224, 182, 67, 0.18), 0 0 0 0 rgba(224, 182, 67, 0);
+}
+
+.pkst-acct-trigger:hover,
+.pkst-acct.is-open .pkst-acct-trigger {
+	border-color: var(--pkst-acct-gold);
+	box-shadow: 0 0 0 1px rgba(224, 182, 67, 0.3), 0 0 18px 3px rgba(224, 182, 67, 0.35), 0 0 40px 8px rgba(224, 182, 67, 0.15);
+}
+
+.pkst-acct-trigger:active {
+	transform: scale(0.97);
+}
+
+.pkst-acct-trigger:focus-visible {
+	outline: 2px solid var(--pkst-acct-gold);
+	outline-offset: 2px;
+}
+
+/* -------------------------------- Panel ------------------------------ */
+.pkst-acct-panel {
+	position: absolute;
+	top: calc(100% + 14px);
+	inset-inline-end: 0;
+	width: 360px;
+	max-width: calc(100vw - 24px);
+	padding: 20px;
+	border-radius: var(--pkst-acct-radius);
+	background: linear-gradient(165deg, rgba(23, 19, 10, 0.97), rgba(10, 8, 4, 0.98));
+	-webkit-backdrop-filter: blur(18px);
+	backdrop-filter: blur(18px);
+	border: 1px solid var(--pkst-acct-border);
+	box-shadow: 0 0 0 1px rgba(224, 182, 67, 0.12), 0 20px 60px rgba(0, 0, 0, 0.55), 0 0 40px rgba(224, 182, 67, 0.08);
+	color: var(--pkst-acct-text);
+
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transform: translateY(-10px) scale(0.96);
+	transform-origin: top left;
+	transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.22s;
+}
+
+.pkst-acct.is-open .pkst-acct-panel {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+	transform: translateY(0) scale(1);
+	transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s;
+}
+
+.pkst-acct-panel-head {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.pkst-acct-avatar {
+	flex-shrink: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--pkst-acct-gold-soft);
+	border: 1px solid rgba(224, 182, 67, 0.4);
+	color: var(--pkst-acct-gold);
+}
+
+.pkst-acct-panel-headtext strong {
+	display: block;
+	font-size: 15px;
+	font-weight: 700;
+	color: var(--pkst-acct-text);
+	margin-bottom: 3px;
+}
+
+.pkst-acct-panel-headtext p {
+	margin: 0;
+	font-size: 12.5px;
+	color: var(--pkst-acct-text-muted);
+	line-height: 1.7;
+}
+
+/* -------------------------------- Buttons ----------------------------- */
+.pkst-acct-actions {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.pkst-acct-btn {
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 11px 16px;
+	border-radius: var(--pkst-acct-radius-full);
+	font-size: 14px;
+	font-weight: 700;
+	text-decoration: none;
+	font-family: inherit;
+	transition: transform 0.15s ease, box-shadow 0.25s ease, filter 0.2s ease, background-color 0.2s ease;
+}
+
+.pkst-acct-btn:active {
+	transform: scale(0.98);
+}
+
+.pkst-acct-btn-primary {
+	background: linear-gradient(95deg, var(--pkst-acct-gold-strong), var(--pkst-acct-gold) 60%, #c99a2e);
+	color: var(--pkst-acct-on-gold);
+	box-shadow: 0 6px 18px rgba(224, 182, 67, 0.28);
+}
+
+.pkst-acct-btn-primary:hover {
+	filter: brightness(1.08);
+	box-shadow: 0 8px 24px rgba(224, 182, 67, 0.42);
+}
+
+/* Diagonal shine sweep on hover -- a subtle "premium button" touch. */
+.pkst-acct-btn-primary::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	inset-inline-start: -60%;
+	width: 40%;
+	height: 100%;
+	background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+	transform: skewX(-20deg);
+	transition: inset-inline-start 0.6s ease;
+	pointer-events: none;
+}
+
+.pkst-acct-btn-primary:hover::after {
+	inset-inline-start: 130%;
+}
+
+.pkst-acct-btn-ghost {
+	background: transparent;
+	color: var(--pkst-acct-text);
+	border: 1px solid var(--pkst-acct-border);
+}
+
+.pkst-acct-btn-ghost:hover {
+	border-color: var(--pkst-acct-gold);
+	background: var(--pkst-acct-gold-soft);
+	color: var(--pkst-acct-gold-strong);
+}
+
+/* -------------------------------- Divider ------------------------------ */
+.pkst-acct-divider {
+	height: 1px;
+	margin: 16px 0 10px;
+	background: linear-gradient(90deg, transparent, var(--pkst-acct-border) 20%, var(--pkst-acct-border) 80%, transparent);
+}
+
+/* -------------------------------- Quick links --------------------------- */
+.pkst-acct-links {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.pkst-acct-links li + li {
+	margin-top: 2px;
+}
+
+.pkst-acct-links a {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 8px;
+	border-radius: 10px;
+	color: var(--pkst-acct-text);
+	text-decoration: none;
+	font-size: 13.5px;
+	font-weight: 500;
+	transition: background-color 0.18s ease, transform 0.18s ease, color 0.18s ease;
+}
+
+.pkst-acct-links a .pkst-icon {
+	color: var(--pkst-acct-gold);
+	flex-shrink: 0;
+	transition: transform 0.2s ease;
+}
+
+.pkst-acct-links a:hover {
+	background: var(--pkst-acct-gold-soft);
+	color: var(--pkst-acct-gold-strong);
+	transform: translateX(-3px);
+}
+
+.pkst-acct-links a:hover .pkst-icon {
+	transform: scale(1.12);
+}
+
+/* -------------------------------- Responsive ---------------------------- */
+@media (max-width: 480px) {
+	.pkst-acct-panel {
+		position: fixed;
+		top: auto;
+		bottom: 12px;
+		inset-inline: 12px;
+		width: auto;
+		max-width: none;
+		transform-origin: bottom center;
+		transform: translateY(16px) scale(0.97);
+	}
+
+	.pkst-acct.is-open .pkst-acct-panel {
+		transform: translateY(0) scale(1);
+	}
+
+	.pkst-acct-trigger-label {
+		max-width: 100px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+}

@@ -17,6 +17,8 @@ class PKST_Settings {
 			'tracking_code_prefix'     => 'PK',
 			'overdue_hours'            => '48',
 			'delete_data_on_uninstall' => '0',
+			'panel_page_url'           => '',
+			'faq_url'                  => '',
 		);
 	}
 

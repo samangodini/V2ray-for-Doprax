@@ -3,7 +3,7 @@
  * Plugin Name: پنل رهگیری مرسولات پیک خرفه
  * Plugin URI: https://peykherfei.com/
  * Description: سامانه اختصاصی ثبت، رهگیری و مدیریت مرسولات به همراه پنل مدیریت (وردپرس) و پنل کاربری برای مشتریان و پیک‌ها؛ شامل تأییدیه تحویل (POD)، گزارش‌گیری و وب‌سرویس اتصال به سامانه‌های خارجی.
- * Version: 1.1.0
+ * Version: 1.3.0
  * Author: peykherfei.com
  * Text Domain: peykherfei-shipment-tracking
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PKST_VERSION', '1.2.0' );
+define( 'PKST_VERSION', '1.3.0' );
 define( 'PKST_DB_VERSION', '1.1.0' );
 define( 'PKST_PLUGIN_FILE', __FILE__ );
 define( 'PKST_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -41,6 +41,7 @@ require_once PKST_PLUGIN_DIR . 'includes/class-pkst-geolocation.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-map.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-address.php';
 require_once PKST_PLUGIN_DIR . 'includes/class-pkst-backup.php';
+require_once PKST_PLUGIN_DIR . 'includes/class-pkst-elementor.php';
 
 register_activation_hook( __FILE__, array( 'PKST_Activator', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'PKST_Deactivator', 'deactivate' ) );
@@ -65,6 +66,7 @@ final class PKST_Plugin {
 		add_action( 'plugins_loaded', array( $this, 'maybe_upgrade' ) );
 
 		PKST_REST_API::instance();
+		PKST_Elementor::init();
 
 		// PKST_Public registers shortcodes plus the admin-post/admin-ajax
 		// handlers for courier/customer actions. Those handlers must load

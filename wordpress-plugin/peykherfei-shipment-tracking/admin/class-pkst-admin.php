@@ -316,10 +316,17 @@ class PKST_Admin {
 			wp_die( esc_html__( 'دسترسی غیرمجاز.', 'peykherfei-shipment-tracking' ) );
 		}
 
-		$fields = array_keys( PKST_Settings::defaults() );
-		$values = array();
+		$fields    = array_keys( PKST_Settings::defaults() );
+		$url_fields = array( 'panel_page_url', 'faq_url' );
+		$values    = array();
 		foreach ( $fields as $field ) {
-			$values[ $field ] = isset( $_POST[ $field ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field ] ) ) : '';
+			if ( ! isset( $_POST[ $field ] ) ) {
+				$values[ $field ] = '';
+			} elseif ( in_array( $field, $url_fields, true ) ) {
+				$values[ $field ] = esc_url_raw( wp_unslash( $_POST[ $field ] ) );
+			} else {
+				$values[ $field ] = sanitize_text_field( wp_unslash( $_POST[ $field ] ) );
+			}
 		}
 		$values['delete_data_on_uninstall'] = isset( $_POST['delete_data_on_uninstall'] ) ? '1' : '0';
 

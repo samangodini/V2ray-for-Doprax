@@ -47,6 +47,20 @@ $g = function ( $key, $default = '' ) use ( $settings ) {
 						<p class="description"><?php esc_html_e( 'در صورت عدم انتخاب (پیشنهادی)، اطلاعات حتی پس از حذف افزونه نگه‌داری می‌شود.', 'peykherfei-shipment-tracking' ); ?></p>
 					</td>
 				</tr>
+				<tr>
+					<th><label for="panel_page_url"><?php esc_html_e( 'آدرس صفحه پنل کاربری', 'peykherfei-shipment-tracking' ); ?></label></th>
+					<td>
+						<input type="url" dir="ltr" class="regular-text" name="panel_page_url" id="panel_page_url" value="<?php echo esc_attr( $g( 'panel_page_url' ) ); ?>" placeholder="https://peykherfei.com/panel" />
+						<p class="description"><?php esc_html_e( 'آدرس صفحه‌ای که کد کوتاه [pkst_panel] در آن قرار دارد. دکمه ورود کاربری المنتور از این آدرس استفاده می‌کند.', 'peykherfei-shipment-tracking' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th><label for="faq_url"><?php esc_html_e( 'آدرس صفحه پشتیبانی/سوالات متداول', 'peykherfei-shipment-tracking' ); ?></label></th>
+					<td>
+						<input type="url" dir="ltr" class="regular-text" name="faq_url" id="faq_url" value="<?php echo esc_attr( $g( 'faq_url' ) ); ?>" placeholder="https://peykherfei.com/faq" />
+						<p class="description"><?php esc_html_e( 'اختیاری — برای لینک «پشتیبانی و سوالات متداول» در دکمه ورود کاربری.', 'peykherfei-shipment-tracking' ); ?></p>
+					</td>
+				</tr>
 			</table>
 			<?php submit_button(); ?>
 		</form>

@@ -35,6 +35,11 @@ class PKST_Icons {
 		'truck'      => '<path d="M2.5 6.5h10v9h-10Z"/><path d="M12.5 10h4l3 3v2.5h-7Z"/><circle cx="6.5" cy="17.5" r="1.7"/><circle cx="16" cy="17.5" r="1.7"/>',
 		'file'       => '<path d="M7 3.5h7l4 4v13H7Z"/><path d="M14 3.5v4h4"/>',
 		'arrow-left' => '<path d="M19 12H5"/><path d="m11 6-6 6 6 6"/>',
+		'user'       => '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c1-4 4-6 7.5-6s6.5 2 7.5 6"/>',
+		'user-plus'  => '<circle cx="10" cy="8" r="3.3"/><path d="M3.5 20c.9-3.6 3.5-5.5 6.5-5.5s5.6 1.9 6.5 5.5"/><path d="M18.5 4.5v6"/><path d="M21.5 7.5h-6"/>',
+		'chevron-down' => '<path d="m5.5 9 6.5 6.5L18.5 9"/>',
+		'headset'    => '<path d="M4 13.5v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4.5" height="6" rx="1.6"/><rect x="16.5" y="13" width="4.5" height="6" rx="1.6"/><path d="M20 19v.5a3 3 0 0 1-3 3h-3.5"/>',
+		'login'      => '<path d="M10 16.5V19a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2.5"/><path d="M14.5 12H3"/><path d="m6.5 8.5-3.5 3.5 3.5 3.5"/>',
 	);
 
 	/**
