@@ -3,7 +3,7 @@
  * Plugin Name: پنل رهگیری مرسولات پیک خرفه
  * Plugin URI: https://peykherfei.com/
  * Description: سامانه اختصاصی ثبت، رهگیری و مدیریت مرسولات به همراه پنل مدیریت (وردپرس) و پنل کاربری برای مشتریان و پیک‌ها؛ شامل تأییدیه تحویل (POD)، گزارش‌گیری و وب‌سرویس اتصال به سامانه‌های خارجی.
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: peykherfei.com
  * Text Domain: peykherfei-shipment-tracking
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PKST_VERSION', '1.3.0' );
+define( 'PKST_VERSION', '1.4.0' );
 define( 'PKST_DB_VERSION', '1.1.0' );
 define( 'PKST_PLUGIN_FILE', __FILE__ );
 define( 'PKST_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

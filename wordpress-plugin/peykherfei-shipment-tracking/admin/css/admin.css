@@ -9,7 +9,19 @@
 .pkst-wrap h1 {
 	display: inline-flex;
 	align-items: center;
+	flex-wrap: wrap;
 	gap: 10px;
+	vertical-align: middle;
+}
+
+.pkst-version-badge {
+	display: inline-block;
+	padding: 3px 11px;
+	border-radius: 999px;
+	background: var(--pkst-gold-soft);
+	color: var(--pkst-gold-strong);
+	font-size: 12px;
+	font-weight: 600;
 	vertical-align: middle;
 }
 

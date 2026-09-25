@@ -5,7 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 $max_daily = $daily ? max( $daily ) : 0;
 ?>
 <div class="wrap pkst-wrap" dir="rtl">
-	<h1><?php echo PKST_Icons::svg( 'chart', 22 ); ?> <?php esc_html_e( 'داشبورد مرسولات', 'peykherfei-shipment-tracking' ); ?></h1>
+	<h1>
+		<?php echo PKST_Icons::svg( 'chart', 22 ); ?> <?php esc_html_e( 'داشبورد مرسولات', 'peykherfei-shipment-tracking' ); ?>
+		<span class="pkst-version-badge"><?php echo esc_html( sprintf( /* translators: %s: plugin version number */ __( 'نسخه %s', 'peykherfei-shipment-tracking' ), PKST_VERSION ) ); ?></span>
+	</h1>
 	<?php PKST_Admin::notice_from_query(); ?>
 
 	<div class="pkst-stat-grid">
