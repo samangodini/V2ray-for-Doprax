@@ -102,12 +102,22 @@ class PKST_Elementor_Account_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'register_message',
+			array(
+				'label'       => __( 'متن پاپ‌آپ ثبت‌نام', 'peykherfei-shipment-tracking' ),
+				'type'        => \Elementor\Controls_Manager::TEXTAREA,
+				'default'     => __( 'حساب کاربری مشتری و پیک فعلاً توسط مدیر سامانه ساخته می‌شود. برای دریافت حساب، با پشتیبانی ما در تماس باشید.', 'peykherfei-shipment-tracking' ),
+				'condition'   => array( 'show_register' => 'yes' ),
+			)
+		);
+
+		$this->add_control(
 			'register_url',
 			array(
-				'label'       => __( 'آدرس ثبت‌نام', 'peykherfei-shipment-tracking' ),
+				'label'       => __( 'آدرس تماس با پشتیبانی', 'peykherfei-shipment-tracking' ),
 				'type'        => \Elementor\Controls_Manager::URL,
 				'condition'   => array( 'show_register' => 'yes' ),
-				'description' => __( 'حساب مشتری/پیک را فعلاً فقط مدیر می‌سازد؛ این آدرس را به صفحه تماس یا فرم درخواست حساب وصل کنید.', 'peykherfei-shipment-tracking' ),
+				'description' => __( 'مثلاً لینک واتس‌اپ، تلفن (tel:...) یا صفحه تماس با ما. هم در دکمه «ثبت نام» (در صورت غیرفعال بودن جاوااسکریپت) و هم در دکمه پاپ‌آپ استفاده می‌شود.', 'peykherfei-shipment-tracking' ),
 			)
 		);
 
@@ -195,6 +205,15 @@ class PKST_Elementor_Account_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'widget_typography',
+				'label'    => __( 'فونت', 'peykherfei-shipment-tracking' ),
+				'selector' => '{{WRAPPER}} .pkst-acct',
+			)
+		);
+
 		$this->add_responsive_control(
 			'panel_width',
 			array(
@@ -272,13 +291,13 @@ class PKST_Elementor_Account_Widget extends \Elementor\Widget_Base {
 							<span><?php esc_html_e( 'خروج از حساب', 'peykherfei-shipment-tracking' ); ?></span>
 						</a>
 					<?php else : ?>
-						<a class="pkst-acct-btn pkst-acct-btn-primary" href="<?php echo esc_url( $panel_url ); ?>">
+						<a class="pkst-acct-btn pkst-acct-btn-primary" href="<?php echo esc_url( $panel_url ); ?>" data-pkst-open-modal="login">
 							<span><?php esc_html_e( 'ورود به حساب کاربری', 'peykherfei-shipment-tracking' ); ?></span>
 							<?php echo PKST_Icons::svg( 'login', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
 						<?php if ( 'yes' === $settings['show_register'] ) : ?>
 							<?php $register_url = ! empty( $settings['register_url']['url'] ) ? $settings['register_url']['url'] : $panel_url; ?>
-							<a class="pkst-acct-btn pkst-acct-btn-ghost" href="<?php echo esc_url( $register_url ); ?>">
+							<a class="pkst-acct-btn pkst-acct-btn-ghost" href="<?php echo esc_url( $register_url ); ?>" data-pkst-open-modal="register">
 								<span><?php esc_html_e( 'ثبت نام در سایت', 'peykherfei-shipment-tracking' ); ?></span>
 								<?php echo PKST_Icons::svg( 'user-plus', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 							</a>
@@ -306,6 +325,60 @@ class PKST_Elementor_Account_Widget extends \Elementor\Widget_Base {
 					</ul>
 				<?php endif; ?>
 			</div>
+
+			<?php if ( ! $user ) : ?>
+				<div class="pkst-acct-overlay" data-pkst-overlay hidden></div>
+
+				<div class="pkst-acct-modal" data-pkst-modal="login" role="dialog" aria-modal="true" aria-labelledby="<?php echo esc_attr( $uid ); ?>-login-title" hidden>
+					<button type="button" class="pkst-acct-modal-close" data-pkst-modal-close aria-label="<?php esc_attr_e( 'بستن', 'peykherfei-shipment-tracking' ); ?>">
+						<?php echo PKST_Icons::svg( 'x', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					</button>
+					<div class="pkst-acct-modal-icon"><?php echo PKST_Icons::svg( 'login', 24 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+					<h3 id="<?php echo esc_attr( $uid ); ?>-login-title"><?php esc_html_e( 'ورود به حساب کاربری', 'peykherfei-shipment-tracking' ); ?></h3>
+					<p class="pkst-acct-modal-sub"><?php esc_html_e( 'برای پیگیری مرسولات و مدیریت آدرس‌ها، وارد حساب خود شوید.', 'peykherfei-shipment-tracking' ); ?></p>
+
+					<form class="pkst-acct-login-form" data-pkst-login-form>
+						<?php wp_nonce_field( 'pkst_widget_login' ); ?>
+						<input type="hidden" name="redirect" value="<?php echo esc_attr( $panel_url ); ?>" />
+						<label class="pkst-acct-field">
+							<span><?php esc_html_e( 'نام کاربری یا ایمیل', 'peykherfei-shipment-tracking' ); ?></span>
+							<input type="text" name="username" required autocomplete="username" dir="ltr" />
+						</label>
+						<label class="pkst-acct-field pkst-acct-field-password">
+							<span><?php esc_html_e( 'رمز عبور', 'peykherfei-shipment-tracking' ); ?></span>
+							<span class="pkst-acct-password-wrap">
+								<input type="password" name="password" required autocomplete="current-password" dir="ltr" />
+								<button type="button" class="pkst-acct-toggle-pass" data-pkst-toggle-pass aria-label="<?php esc_attr_e( 'نمایش رمز عبور', 'peykherfei-shipment-tracking' ); ?>">
+									<?php echo PKST_Icons::svg( 'eye', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+								</button>
+							</span>
+						</label>
+						<p class="pkst-acct-form-error" data-pkst-login-error hidden></p>
+						<button type="submit" class="pkst-acct-btn pkst-acct-btn-primary pkst-acct-submit">
+							<span class="pkst-acct-btn-label"><?php esc_html_e( 'ورود', 'peykherfei-shipment-tracking' ); ?></span>
+							<span class="pkst-acct-spinner" hidden></span>
+						</button>
+						<a class="pkst-acct-forgot" href="<?php echo esc_url( wp_lostpassword_url( $panel_url ) ); ?>"><?php esc_html_e( 'فراموشی رمز عبور؟', 'peykherfei-shipment-tracking' ); ?></a>
+					</form>
+				</div>
+
+				<?php if ( 'yes' === $settings['show_register'] ) : ?>
+					<div class="pkst-acct-modal" data-pkst-modal="register" role="dialog" aria-modal="true" aria-labelledby="<?php echo esc_attr( $uid ); ?>-register-title" hidden>
+						<button type="button" class="pkst-acct-modal-close" data-pkst-modal-close aria-label="<?php esc_attr_e( 'بستن', 'peykherfei-shipment-tracking' ); ?>">
+							<?php echo PKST_Icons::svg( 'x', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</button>
+						<div class="pkst-acct-modal-icon"><?php echo PKST_Icons::svg( 'user-plus', 24 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+						<h3 id="<?php echo esc_attr( $uid ); ?>-register-title"><?php esc_html_e( 'ثبت نام در سایت', 'peykherfei-shipment-tracking' ); ?></h3>
+						<p class="pkst-acct-modal-sub"><?php echo esc_html( $settings['register_message'] ); ?></p>
+						<?php if ( ! empty( $settings['register_url']['url'] ) ) : ?>
+							<a class="pkst-acct-btn pkst-acct-btn-primary" href="<?php echo esc_url( $settings['register_url']['url'] ); ?>" target="_blank" rel="noopener noreferrer">
+								<span><?php esc_html_e( 'تماس با پشتیبانی', 'peykherfei-shipment-tracking' ); ?></span>
+								<?php echo PKST_Icons::svg( 'phone', 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</a>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
+			<?php endif; ?>
 		</div>
 		<?php
 	}

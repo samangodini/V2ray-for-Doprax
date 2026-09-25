@@ -40,6 +40,7 @@ class PKST_Icons {
 		'chevron-down' => '<path d="m5.5 9 6.5 6.5L18.5 9"/>',
 		'headset'    => '<path d="M4 13.5v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="13" width="4.5" height="6" rx="1.6"/><rect x="16.5" y="13" width="4.5" height="6" rx="1.6"/><path d="M20 19v.5a3 3 0 0 1-3 3h-3.5"/>',
 		'login'      => '<path d="M10 16.5V19a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2.5"/><path d="M14.5 12H3"/><path d="m6.5 8.5-3.5 3.5 3.5 3.5"/>',
+		'eye'        => '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
 	);
 
 	/**
